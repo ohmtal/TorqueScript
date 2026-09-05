@@ -7,6 +7,7 @@
 #include "SDL3_Filesystem.h"
 #include "console/scriptPreprocessor.h"
 #include "console/engineAPI.h"
+#include "objects/Array.h"
 
 
 namespace ElfSDL3 {
@@ -49,17 +50,14 @@ DefineEngineFunction(SDL_FileExists, bool, (const char* path),, "return true if 
     return SDL_GetPathInfo(path, nullptr);
 }
 
-DefineEngineFunction(SDL_GetPathInfo, bool, (const char* path, S32 resultObjectId),,
-                     "resultObjectId is the object which gets it dynamic fields filled with information"
-                     "return true if the file exits"){
-    if (!path) return false;
-    SimObject* obj = Sim::findObject(resultObjectId);
-    if (!obj) {
-        Con::errorf("SDL_GetPathInfo :: resultObjectId is invalid!");
-        return false;
-    }
+DefineEngineFunction(SDL_GetPathInfo, SimObject*, (const char* path),,
+                     "return an object  if the file exits with dynamic fields"){
+    if (!path) return nullptr;
+    SimObject* obj = new SimObject();
+    obj->registerObject();
+
     SDL_PathInfo info;
-    if (!SDL_GetPathInfo(path, &info)) return false;
+    if (!SDL_GetPathInfo(path, &info)) return nullptr;
 
 
     obj->setDataField(StringTable->insert( "file_type" ), nullptr,  avar("%d" ,(S32)info.type) );
@@ -68,44 +66,78 @@ DefineEngineFunction(SDL_GetPathInfo, bool, (const char* path, S32 resultObjectI
     obj->setDataField(StringTable->insert( "file_modify_time" ), nullptr,  avar("%lld" ,info.modify_time) );
     obj->setDataField(StringTable->insert( "file_access_time" ), nullptr,  avar("%lld" ,info.access_time) );
 
-    return true;
+    return obj;
 }
 // -----------------------------------------------------------------------------
-// new SimObject(GlobResult); SDL_GlobDirectory(SDL_GetBasePath(),GlobResult.getId(),"*", true);GlobResult.dumpFields();
-DefineEngineFunction(SDL_GlobDirectory, bool,
-                     (const char* path,S32 resultObjectId, const char* pattern, bool patternIgnoreCase),
+// %resultArray = SDL_GlobDirectory(SDL_GetBasePath(),"*", true);
+DefineEngineFunction(SDL_GlobDirectory, Array*,
+                     (const char* path,const char* pattern, bool patternIgnoreCase),
                      ("*", true),
-                     "resultObjectId is the object which gets it dynamic fields filled with information\n"
+                     "scan a directory and return an Array Object with: "
                      "dynamic parameters are: query_path, query_pattern, query_ignorecase\n"
-                     "for the result: count, result_[i]\n"
-                     "return true if result was not empty."){
-    if (!path ) return false;
-    SimObject* obj = Sim::findObject(resultObjectId);
-    if (!obj) {
-        Con::errorf("SDL_GlobDirectory :: resultObjectId is invalid!");
-        return false;
-    }
+                     "return true if result was not empty.")
+{
+    if (!path ) return nullptr;
     // extern SDL_DECLSPEC char ** SDLCALL SDL_GlobDirectory(const char *path, const char *pattern, SDL_GlobFlags flags, int *count);
     int count = 0;
     SDL_GlobFlags flags = patternIgnoreCase ?  SDL_GLOB_CASEINSENSITIVE : 0;
 
     char **matches = SDL_GlobDirectory(path, pattern, flags, &count);
 
-    if (matches == nullptr) return false;
+    if (matches == nullptr) return nullptr;
+
+    Array* obj = new Array();
+    obj->registerObject();
 
     obj->setDataField(StringTable->insert( "query_path" ), nullptr,  path );
     obj->setDataField(StringTable->insert( "query_pattern" ), nullptr,  pattern );
     obj->setDataField(StringTable->insert( "query_ignorecase" ), nullptr,  avar("%d", patternIgnoreCase) );
 
-    obj->setDataField(StringTable->insert( "count" ), nullptr,  avar("%d", count) );
+
+    ConsoleValue value;
     for (int i = 0; i < count; i++) {
-        obj->setDataField(StringTable->insert( avar("result_%d", i) ), nullptr,  matches[i] );
+        value.setString( matches[i] );
+        obj->mValues.push_back(value);
     }
     SDL_free(matches);
 
-    return true;
+    return obj;
 
 }
+// DefineEngineFunction(SDL_GlobDirectory, bool,
+//                      (const char* path,S32 resultObjectId, const char* pattern, bool patternIgnoreCase),
+//                      ("*", true),
+//                      "resultObjectId is the object which gets it dynamic fields filled with information\n"
+//                      "dynamic parameters are: query_path, query_pattern, query_ignorecase\n"
+//                      "for the result: count, result_[i]\n"
+//                      "return true if result was not empty."){
+//     if (!path ) return false;
+//     SimObject* obj = Sim::findObject(resultObjectId);
+//     if (!obj) {
+//         Con::errorf("SDL_GlobDirectory :: resultObjectId is invalid!");
+//         return false;
+//     }
+//     // extern SDL_DECLSPEC char ** SDLCALL SDL_GlobDirectory(const char *path, const char *pattern, SDL_GlobFlags flags, int *count);
+//     int count = 0;
+//     SDL_GlobFlags flags = patternIgnoreCase ?  SDL_GLOB_CASEINSENSITIVE : 0;
+//
+//     char **matches = SDL_GlobDirectory(path, pattern, flags, &count);
+//
+//     if (matches == nullptr) return false;
+//
+//     obj->setDataField(StringTable->insert( "query_path" ), nullptr,  path );
+//     obj->setDataField(StringTable->insert( "query_pattern" ), nullptr,  pattern );
+//     obj->setDataField(StringTable->insert( "query_ignorecase" ), nullptr,  avar("%d", patternIgnoreCase) );
+//
+//     obj->setDataField(StringTable->insert( "count" ), nullptr,  avar("%d", count) );
+//     for (int i = 0; i < count; i++) {
+//         obj->setDataField(StringTable->insert( avar("result_%d", i) ), nullptr,  matches[i] );
+//     }
+//     SDL_free(matches);
+//
+//     return true;
+//
+// }
 // -----------------------------------------------------------------------------
 DefineEngineFunction(SDL_CopyFile, bool, (const char *oldpath, const char *newpath),,"Copy a file.") {
     return SDL_CopyFile(oldpath, newpath);

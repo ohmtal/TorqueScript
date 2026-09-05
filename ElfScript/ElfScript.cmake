@@ -15,7 +15,7 @@ option(ELF_ENABLE_SLIMOBJECT "ElfScript: Disable Torque3D Editor methods." ON)
 
 # note after testing i can set it default ON again:
 option(ELF_ENABLE_FIELDCACHE "ElfScript:  Enable FieldCache - - this is faster but you need to initialize the fields to get a good result. Disable this is you use old lazy written scripts or need to save memory" OFF)
-option(ELF_ENABLE_CV_CALLBACK "ElfScript: ConsoleValue callback - used by ValueVector class" OFF)
+# option(ELF_ENABLE_CV_CALLBACK "ElfScript: ConsoleValue callback - used by Array class" OFF)
 
 option(ELF_ENABLE_EXEC_OVERWRITE "ElfScript: Disable the default exec to overwrite it with custom function" OFF)
 option(ELF_ENABLE_DSO_GENERATION "ElfScript: Enable generation of byte code dso files" OFF)
@@ -355,8 +355,8 @@ if (ELF_ENABLE_SLIMOBJECT)
      add_compile_definitions(ELFSCRIPT_SLIM_OBJECT)
 endif()
 
-if (ELF_ENABLE_CV_CALLBACK)
-     add_compile_definitions(ENABLE_CONSOLE_VALUE_CALLBACK)
-endif()
+# if (ELF_ENABLE_CV_CALLBACK)
+# endif()
 
+add_compile_definitions(ENABLE_CONSOLE_VALUE_CALLBACK)
 add_compile_definitions(TORQUE_DISABLE_MEMORY_MANAGER)

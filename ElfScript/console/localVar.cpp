@@ -413,6 +413,7 @@ DefineEngineFunction(explodeGlobal,S32, (const char* varName, bool debugOut),(fa
     return count;
 }
 // ElfScript 0.7f - see also
+// FIXME can be removed and Array need a from string ?
 DefineEngineFunction(explodeToObject,S32, (const char* text),
                      ,"Convert an string to Object with v[] fields\n"
                      "tab separated (default) or space separated\n"

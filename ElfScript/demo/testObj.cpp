@@ -6,6 +6,8 @@
 #include <console/localVar.h>
 #include <core/strings/stringUnit.h>
 
+#include <objects/Array.h>
+
 ///////////////////////////////////////////////////////
 // some testfunction .......
 
@@ -412,3 +414,23 @@ DefineEngineMethod(TestObj, showVec, void, (ConsoleVector vec),,"") {
 DefineEngineMethod(TestObj, getVec, ConsoleVector, (),,"") {
     return ConsoleVector({1.1,2.2,3.3,4.4});
 }
+
+// damit i did not know that: ... how cool is that! -  using the pointer to id translator
+DefineEngineMethod(TestObj, toArray, Array*, (bool testNull),(false),"") {
+    if (testNull) return nullptr;
+    Array* result = new Array();
+    result->registerObject();
+    ConsoleValue tempValue;
+    tempValue.setString("Hello Array!");
+    result->mValues.reserve(100);
+    result->mValues.fill(tempValue);
+    return result;
+}
+
+DefineEngineMethod(TestObj, fromArray, void, (Array* array),,"") {
+    if (array) Con::printf("We got an array object!");
+    else Con::printf("We got an NULLPTR instead an array object!");
+
+}
+
+

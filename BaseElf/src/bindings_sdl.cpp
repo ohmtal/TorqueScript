@@ -465,12 +465,11 @@ DefineEngineMethod(Camera2DObject, TranslateCenterPoint, /*Point2F*/ ConsoleVect
     return toConsoleVector(point);
 }
 
-DefineEngineMethod(Camera2DObject, TranslateSpriteBaseObject, bool, (S32 spriteBaseObjectId),,
+DefineEngineMethod(Camera2DObject, TranslateSpriteBaseObject, bool, (SpriteBaseObject* spriteObj),,
         "Translate to screenRect and screenCenterPoint of a SpriteBaseObject\n"
         "return false if out of view.") {
-    SpriteBaseObject* spriteObj = dynamic_cast<SpriteBaseObject*>(Sim::findObject(spriteBaseObjectId)) ;
     if (!spriteObj) {
-        Con::errorf("TranslateSpriteBaseObject: SpriteBaseObject not found:%d", spriteBaseObjectId);
+        Con::errorf("TranslateSpriteBaseObject: SpriteBaseObject invalid");
         return false;
     }
     return object->Translate(spriteObj);
