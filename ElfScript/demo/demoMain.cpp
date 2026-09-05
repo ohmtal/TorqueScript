@@ -138,6 +138,10 @@ struct alignas(16) ConsoleValueTest {
 
 DefineEngineFunction(testo, F32, (), ,"test for anything i like ;)"){
     Con::printSeparator();
+
+    Con::printf("Size of SimObject: %d", sizeof("SimObject"));
+
+    Con::printSeparator();
     Con::printf("test size: %d cur size: %d curWithoutVec %d",
                 sizeof(ConsoleValueTest),
                 sizeof(ConsoleValue),

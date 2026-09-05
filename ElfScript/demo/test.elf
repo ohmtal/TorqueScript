@@ -7,6 +7,9 @@ function rl() {
     }
 }
 
+function quit() {
+    $ShutDownRequest = true;
+}
 
 function FooBar::Hello(%this) {
     foo();
@@ -659,11 +662,29 @@ for (%i in range 10) {
     cacheSaveBug(%i);
     cacheSaveBug2(%i*2);
 }
+printSeparator();
+
+print("----------------- Array Test ----------------- ");
+%arr = [ 200,300,500, 600];
+%str = "";
+foreach (%v in %arr) %str = %str SPC %v;
+print("Size:",%arr.size(), "as String:", trim(%str) );
+%arr.clear();
+for (%i in range 10) %arr.push_back(math.randomf());
+%arr.list();
+%str = "";
+while( %arr.size() > 0 ) %str = sprintf("%s %.0f", %str, %arr.pop_front() * 10);
+print("Size:",%arr.size(), "rand 10 values:", trim(%str) );
+
+
+// embed a array test:
+%arr.push_back(%foo = [10, 20, 30, 40]);
+print ("array inside a array: id:%d", %arr.at(0));
+%arr.at(0).list();
+
+
+
 
 printSeparator();
 printf("script %s load completed..... no parse errors....", $Con::File);
-
-
-
-
 // $Debug::DumpByteCode=1; print("Enable $Debug::DumpByteCode");

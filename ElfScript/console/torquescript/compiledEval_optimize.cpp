@@ -4033,7 +4033,7 @@ handle_OP_ITER_END:
 handle_OP_ARRAY_CONSTUCTOR: {
 
       U32 count = code[ip++];
-      // FIXME garbage collection ?
+      // garbage collection is done be RootGroup :D
       Array* newArrayObj = new Array();
       newArrayObj->registerObject();
 
