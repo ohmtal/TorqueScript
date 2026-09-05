@@ -38,8 +38,8 @@ endif()
 
 
 set(CONSOLE_SRC
-    ${CMAKE_CURRENT_LIST_DIR}/console/arrayObject.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/console/arrayObject.h
+    # ${CMAKE_CURRENT_LIST_DIR}/console/arrayObject.cpp
+    # ${CMAKE_CURRENT_LIST_DIR}/console/arrayObject.h
     ${CMAKE_CURRENT_LIST_DIR}/console/console.cpp
     ${CMAKE_CURRENT_LIST_DIR}/console/consoleDoc.cpp
     ${CMAKE_CURRENT_LIST_DIR}/console/consoleDoc.h
@@ -218,10 +218,17 @@ set(PLATFORM_SRC
 set ( OBJECTS_SRC
     # some neat objects to work with
     ${CMAKE_CURRENT_LIST_DIR}/objects/pointStorageObject.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/objects/Array.cpp
     ${CMAKE_CURRENT_LIST_DIR}/objects/objectAliases.cpp
     ${CMAKE_CURRENT_LIST_DIR}/objects/NeuralNetObject.cpp
     ${CMAKE_CURRENT_LIST_DIR}/objects/ConsoleLogObject.cpp
+
+    # ElfScript Array using ConsoleValue
+    ${CMAKE_CURRENT_LIST_DIR}/objects/Array.h
+    ${CMAKE_CURRENT_LIST_DIR}/objects/Array.cpp
+
+    # previous called ArrayObject:
+    ${CMAKE_CURRENT_LIST_DIR}/objects/KeyValueStringTable.h
+    ${CMAKE_CURRENT_LIST_DIR}/objects/KeyValueStringTable.cpp
 
 
 )

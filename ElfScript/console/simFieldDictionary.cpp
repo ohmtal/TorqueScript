@@ -377,7 +377,7 @@ void SimFieldDictionary::printFields(SimObject *obj)
          expandEscape(expandedBuffer + dStrlen(expandedBuffer), (*itr)->mValue.getString());
       // if ((*itr)->value)
       //       expandEscape(expandedBuffer + dStrlen(expandedBuffer), (*itr)->value);
-         Con::printf("%s\"", expandedBuffer);
+      Con::printf("%s\"", expandedBuffer);
    }
 }
 

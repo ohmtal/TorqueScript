@@ -39,12 +39,12 @@
 #include "console/simFieldDictionary.h"
 #include "console/simPersistID.h"
 #include "console/typeValidators.h"
-#include "console/arrayObject.h"
 #include "core/frameAllocator.h"
 #include "core/stream/fileStream.h"
 #include "core/fileObject.h"
 #include "console/script.h"
 
+#include "objects/KeyValueStringTable.h"
 
 IMPLEMENT_CONOBJECT( SimObject );
 
@@ -3152,8 +3152,8 @@ DefineEngineMethod( SimObject, setHidden, void, ( bool value ), ( true ),
 #endif //#ifndef ELFSCRIPT_SLIM_OBJECT
 //-----------------------------------------------------------------------------
 // ElfScript why is this called dump?
-// DefineEngineMethod( SimObject, dumpMethods, ArrayObject*, (),,
-DefineEngineMethod( SimObject, getMethods, ArrayObject*, (),,
+// DefineEngineMethod( SimObject, dumpMethods, KeyValueStringTable*, (),,
+DefineEngineMethod( SimObject, getMethods, KeyValueStringTable*, (),,
    "List the methods defined on this object.\n\n"
    "Each description is a newline-separated vector with the following elements:\n"
    "- Minimum number of arguments.\n"
@@ -3162,13 +3162,13 @@ DefineEngineMethod( SimObject, getMethods, ArrayObject*, (),,
    "- Full script file path (if script method).\n"
    "- Line number of method definition in script (if script method).\n\n"
    "- Documentation string (not including prototype).  This takes up the remainder of the vector.\n"
-   "@return An ArrayObject populated with (name,description) pairs of all methods defined on the object." )
+   "@return An KeyValueStringTable populated with (name,description) pairs of all methods defined on the object." )
 {
    Namespace *ns = object->getNamespace();
    if( !ns )
       return 0;
       
-   ArrayObject* dictionary = new ArrayObject();
+   KeyValueStringTable* dictionary = new KeyValueStringTable();
    dictionary->registerObject();
    
    VectorPtr<Namespace::Entry *> vec(__FILE__, __LINE__);
@@ -3207,18 +3207,18 @@ DefineEngineMethod( SimObject, getMethods, ArrayObject*, (),,
    return dictionary;
 }
 
-DefineEngineMethod(SimObject, getMethodSigs, ArrayObject*, (bool commands), (false),
+DefineEngineMethod(SimObject, getMethodSigs, KeyValueStringTable*, (bool commands), (false),
    "List the methods defined on this object.\n\n"
    "Each description is a newline-separated vector with the following elements:\n"
    "- method prototype string.\n"
    "- Documentation string (not including prototype).  This takes up the remainder of the vector.\n"
-   "@return An ArrayObject populated with (name,description) pairs of all methods defined on the object.")
+   "@return An KeyValueStringTable populated with (name,description) pairs of all methods defined on the object.")
 {
    Namespace* ns = object->getNamespace();
    if (!ns)
       return 0;
 
-   ArrayObject* dictionary = new ArrayObject();
+   KeyValueStringTable* dictionary = new KeyValueStringTable();
    dictionary->registerObject();
 
    VectorPtr<Namespace::Entry*> vec(__FILE__, __LINE__);
@@ -3259,19 +3259,19 @@ DefineEngineMethod(SimObject, getMethodSigs, ArrayObject*, (bool commands), (fal
    return dictionary;
 }
 
-DefineEngineFunction(getMethodSigsNS, ArrayObject*, (StringTableEntry className, bool commands), (false),
+DefineEngineFunction(getMethodSigsNS, KeyValueStringTable*, (StringTableEntry className, bool commands), (false),
    "List the methods defined on this object.\n\n"
    "Each description is a newline-separated vector with the following elements:\n"
    "- method prototype string.\n"
    "- Documentation string (not including prototype).  This takes up the remainder of the vector.\n"
-   "@return An ArrayObject populated with (name,description) pairs of all methods defined on the object.")
+   "@return An KeyValueStringTable populated with (name,description) pairs of all methods defined on the object.")
 {
    
    Namespace* ns = Con::lookupNamespace(className);
    if (!ns)
       return 0;
 
-   ArrayObject* dictionary = new ArrayObject();
+   KeyValueStringTable* dictionary = new KeyValueStringTable();
    dictionary->registerObject();
 
    VectorPtr<Namespace::Entry*> vec(__FILE__, __LINE__);
@@ -4058,11 +4058,11 @@ DefineEngineFunction(getClassHierarchy, const char*, (const char* name), ,
 
 #ifdef TORQUE_DEBUG
 
-DefineEngineMethod( SimObject, getDebugInfo, ArrayObject*, (),,
+DefineEngineMethod( SimObject, getDebugInfo, KeyValueStringTable*, (),,
    "Return some behind-the-scenes information on the object.\n"
-   "@return An ArrayObject filled with internal information about the object." )
+   "@return An KeyValueStringTable filled with internal information about the object." )
 {
-   ArrayObject* array = new ArrayObject();
+   KeyValueStringTable* array = new KeyValueStringTable();
    array->registerObject();
    
    array->push_back( "C++|Address", String::ToString( "0x%x", object ) );

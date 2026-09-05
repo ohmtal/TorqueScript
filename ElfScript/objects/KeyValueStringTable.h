@@ -1,5 +1,6 @@
 //-----------------------------------------------------------------------------
 // Copyright (c) 2012 GarageGames, LLC
+// XXTH ElfScript 0.7: KeyValueStringTable renamed to KeyValueStringTable
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
@@ -19,9 +20,8 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------
-
-#ifndef _ARRAYOBJECT_H_
-#define _ARRAYOBJECT_H_
+#ifndef _KeyValueStringTable_H_
+#define _KeyValueStringTable_H_
 
 #ifndef _SIMBASE_H_
 #include "console/simBase.h"
@@ -34,7 +34,7 @@
 
 
 /// A data structure holding indexed sequences of key/value pairs for script use.
-class ArrayObject : public SimObject
+class KeyValueStringTable : public SimObject
 {
    typedef SimObject Parent;
 
@@ -74,7 +74,7 @@ protected:
 
 public:
   
-   ArrayObject();
+   KeyValueStringTable();
 
    /// @name Data Query 
    /// @{
@@ -163,13 +163,13 @@ public:
    void uniquePair();
 
    /// Makes this array an exact duplicate of another array
-   void duplicate( ArrayObject *obj );
+   void duplicate( KeyValueStringTable *obj );
 
    /// Crops the keys that exists in the target array from our current array
-   void crop( ArrayObject *obj );
+   void crop( KeyValueStringTable *obj );
 
    /// Appends the target array to our current array
-   void append( ArrayObject *obj );
+   void append( KeyValueStringTable *obj );
 
    /// Sets the key at the given index
    void setKey( const String &key, S32 index );
@@ -226,11 +226,11 @@ public:
    /// @}
 
    // SimObject
-   DECLARE_CONOBJECT( ArrayObject );
+   DECLARE_CONOBJECT( KeyValueStringTable );
    DECLARE_CATEGORY( "Core" );
    DECLARE_DESCRIPTION( "An object storing an indexed sequence of key/value pairs." );
    
    static void initPersistFields();
 };
 
-#endif // _ARRAYOBJECT_H_
+#endif // _KeyValueStringTable_H_

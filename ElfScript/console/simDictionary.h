@@ -38,6 +38,7 @@
 class SimObject;
 
 #ifdef USE_NEW_SIMDICTIONARY
+
 #include <string>
 #include <unordered_map>
 
@@ -63,7 +64,8 @@ struct StringTableEntryEq
 
 typedef std::unordered_map<StringTableEntry, SimObject*, StringTableEntryHash, StringTableEntryEq> StringDictDef; 
 typedef std::unordered_map<SimObjectId, SimObject*> SimObjectIdDictDef;
-#endif
+
+#endif //#ifdef USE_NEW_SIMDICTIONARY
 
 //----------------------------------------------------------------------------
 /// Map of names to SimObjects
