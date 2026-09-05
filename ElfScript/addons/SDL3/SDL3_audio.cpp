@@ -122,6 +122,7 @@ namespace Audio {
         return true;
     }
     //--------------------------------------------------------------------------
+    //--------------------------------------------------------------------------
 
     // TODO : This should be moved in a Melody file ?!
 
@@ -393,6 +394,7 @@ namespace Audio {
     void ShutDown()
     {
         Audio::WaveDataMap.clear();
+        Audio::MelodyMap.clear();
     }
 
 } //namespace Audio

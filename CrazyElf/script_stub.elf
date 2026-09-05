@@ -116,7 +116,7 @@ class  SimObject {
     * @return SimObject*
     */
       function deepClone();
-   /** --- ArrayObject* getMethods ---
+   /** --- KeyValueStringTable* getMethods ---
     * List the methods defined on this object.
     * Each description is a newline-separated vector with the following elements:
     * - Minimum number of arguments.
@@ -125,17 +125,17 @@ class  SimObject {
     * - Full script file path (if script method).
     * - Line number of method definition in script (if script method).
     * - Documentation string (not including prototype).  This takes up the remainder of the vector.
-    * @return An ArrayObject populated with (name,description) pairs of all methods defined on the object.
-    * @return ArrayObject*
+    * @return An KeyValueStringTable populated with (name,description) pairs of all methods defined on the object.
+    * @return KeyValueStringTable*
     */
       function getMethods();
-   /** --- ArrayObject* getMethodSigs ---
+   /** --- KeyValueStringTable* getMethodSigs ---
     * List the methods defined on this object.
     * Each description is a newline-separated vector with the following elements:
     * - method prototype string.
     * - Documentation string (not including prototype).  This takes up the remainder of the vector.
-    * @return An ArrayObject populated with (name,description) pairs of all methods defined on the object.
-    * @return ArrayObject*
+    * @return An KeyValueStringTable populated with (name,description) pairs of all methods defined on the object.
+    * @return KeyValueStringTable*
     */
       function getMethodSigs( bool commands=false );
    /** --- void dump ---
@@ -310,10 +310,10 @@ class  SimObject {
     * @return const char*
     */
       function getField( int index );
-   /** --- ArrayObject* getDebugInfo ---
+   /** --- KeyValueStringTable* getDebugInfo ---
     * Return some behind-the-scenes information on the object.
-    * @return An ArrayObject filled with internal information about the object.
-    * @return ArrayObject*
+    * @return An KeyValueStringTable filled with internal information about the object.
+    * @return KeyValueStringTable*
     */
       function getDebugInfo();
    /** --- void dumpFields ---
@@ -526,14 +526,18 @@ class  SimSet : public SimObject {
     * @return S32
     */
       function at( int index );
-   /** --- void remove_at ---
+   /** --- void erase ---
     * Remove the object at the specified index from the set.
     */
-      function remove_at( int index );
+      function erase( int index );
    /** --- void push_back ---
     * push a object (ID!)to the end of the list
     */
       function push_back( int SimObjectId );
+   /** --- void insert ---
+    * insert a object (ID!)to the index of the list
+    */
+      function insert( int position, int SimObjectId );
    /** --- void pop_front ---
     * pop the first object
     */
@@ -645,293 +649,6 @@ class  ScriptObject : public SimObject {
 };
 class  Object : public SimObject {
   public:
-   // --- Group: Ungrouped ---
-   // --- Group: Object ---
-   // --- Group: Persistence ---
-};
-/*!
-@brief Data structure for storing indexed sequences of key/value pairs.
-This is a powerful array class providing PHP style arrays in TorqueScript.
-The following features are supported:<ul>
-<li>array pointers: this allows you to move forwards or backwards through the array as if it was a list, including jumping to the start or end.</li>
-<li>sorting: the array can be sorted in either alphabetic or numeric mode, on the key or the value, and in ascending or descending order</li>
-<li>add/remove elements: elements can be pushed/popped from the start or end of the array, or can be inserted/erased from anywhere in the middle</li>
-<li>removal of duplicates: remove duplicate keys or duplicate values</li>
-<li>searching: search the array and return the index of a particular key or value</li>
-<li>counting: count the number of instaces of a particular value or key in the array, as well as the total number of elements</li>
-<li>advanced features: array append, array crop and array duplicate</li>
-</ul>
-Array element keys and values can be strings or numbers
- */
-class  ArrayObject : public SimObject {
-  public:
-   /** --- S32 getIndexFromValue ---
-    * Search the array from the current position for the element @param value Array value to search for
-    * @return Index of the first element found, or -1 if none
-    * @return S32
-    */
-      function getIndexFromValue( string value );
-   /** --- S32 getIndexFromKey ---
-    * Search the array from the current position for the key @param value Array key to search for
-    * @return Index of the first element found, or -1 if none
-    * @return S32
-    */
-      function getIndexFromKey( string key );
-   /** --- const char* getValueFromKey ---
-    * Search the array from the current position for the Key @param value Array key to search for
-    * @return Value of the first element found, or -1 if none
-    * @return const char*
-    */
-      function getValueFromKey( string key );
-   /** --- const char* getKeyFromValue ---
-    * Search the array from the current position for the Value @param value Array key to search for
-    * @return Key of the first element found, or -1 if none
-    * @return const char*
-    */
-      function getKeyFromValue( string key );
-   /** --- const char* getValue ---
-    * Get the value of the array element at the submitted index.
-    * @param index 0-based index of the array element to get
-    * @return The value of the array element at the specified index, or "" if the index is out of range
-    * @return const char*
-    */
-      function getValue( int index );
-   /** --- const char* getKey ---
-    * Get the key of the array element at the submitted index.
-    * @param index 0-based index of the array element to get
-    * @return The key associated with the array element at the specified index, or "" if the index is out of range
-    * @return const char*
-    */
-      function getKey( int index );
-   /** --- void setKey ---
-    * Set the key at the given index.
-    * @param key New key value
-    * @param index 0-based index of the array element to update
-    */
-      function setKey( string key, int index );
-   /** --- void setValue ---
-    * Set the value at the given index.
-    * @param value New array element value
-    * @param index 0-based index of the array element to update
-    */
-      function setValue( string value, int index );
-   /** --- S32 count ---
-    * Get the number of elements in the array.
-    * @return S32
-    */
-      function count();
-   /** --- S32 countValue ---
-    * Get the number of times a particular value is found in the array.
-    * @param value Array element value to count
-    * @return S32
-    */
-      function countValue( string value );
-   /** --- S32 countKey ---
-    * Get the number of times a particular key is found in the array.
-    * @param key Key value to count
-    * @return S32
-    */
-      function countKey( string key );
-   /** --- void add ---
-    * Adds a new element to the end of an array (same as push_back()).
-    * @param key Key for the new element
-    * @param value Value for the new element
-    */
-      function add( string key, string value="" );
-   /** --- void push_back ---
-    * Adds a new element to the end of an array.
-    * @param key Key for the new element
-    * @param value Value for the new element
-    */
-      function push_back( string key, string value="" );
-   /** --- void push_front ---
-    * Adds a new element to the front of an array
-    */
-      function push_front( string key, string value="" );
-   /** --- void insert ---
-    * Adds a new element to a specified position in the array.
-    * - @a index = 0 will insert an element at the start of the array (same as push_front())
-    * - @a index = %array.count() will insert an element at the end of the array (same as push_back())
-    * @param key Key for the new element
-    * @param value Value for the new element
-    * @param index 0-based index at which to insert the new element
-    */
-      function insert( string key, string value, int index );
-   /** --- void pop_back ---
-    * Removes the last element from the array
-    */
-      function pop_back();
-   /** --- void pop_front ---
-    * Removes the first element from the array
-    */
-      function pop_front();
-   /** --- void erase ---
-    * Removes an element at a specific position from the array.
-    * @param index 0-based index of the element to remove
-    */
-      function erase( int index );
-   /** --- void empty ---
-    * Emptys all elements from an array
-    */
-      function empty();
-   /** --- void uniqueValue ---
-    * Removes any elements that have duplicated values (leaving the first instance)
-    */
-      function uniqueValue();
-   /** --- void uniqueKey ---
-    * Removes any elements that have duplicated keys (leaving the first instance)
-    */
-      function uniqueKey();
-   /** --- void uniquePair ---
-    * Removes any elements that have duplicated key and value pairs (leaving the first instance)
-    */
-      function uniquePair();
-   /** --- bool duplicate ---
-    * Alters array into an exact duplicate of the target array.
-    * @param target ArrayObject to duplicate
-    * @return bool
-    */
-      function duplicate( ArrayObject target );
-   /** --- bool crop ---
-    * Removes elements with matching keys from array.
-    * @param target ArrayObject containing keys to remove from this array
-    * @return bool
-    */
-      function crop( ArrayObject target );
-   /** --- bool append ---
-    * Appends the target array to the array object.
-    * @param target ArrayObject to append to the end of this array
-    * @return bool
-    */
-      function append( ArrayObject target );
-   /** --- void sort ---
-    * Alpha sorts the array by value
-    * @param ascending [optional] True for ascending sort, false for descending sort
-    */
-      function sort( bool ascending=false );
-   /** --- void sorta ---
-    * Alpha sorts the array by value in ascending order
-    */
-      function sorta();
-   /** --- void sortd ---
-    * Alpha sorts the array by value in descending order
-    */
-      function sortd();
-   /** --- void sortk ---
-    * Alpha sorts the array by key
-    * @param ascending [optional] True for ascending sort, false for descending sort
-    */
-      function sortk( bool ascending=false );
-   /** --- void sortka ---
-    * Alpha sorts the array by key in ascending order
-    */
-      function sortka();
-   /** --- void sortkd ---
-    * Alpha sorts the array by key in descending order
-    */
-      function sortkd();
-   /** --- void sortn ---
-    * Numerically sorts the array by value
-    * @param ascending [optional] True for ascending sort, false for descending sort
-    */
-      function sortn( bool ascending=false );
-   /** --- void sortna ---
-    * Numerically sorts the array by value in ascending order
-    */
-      function sortna();
-   /** --- void sortnd ---
-    * Numerically sorts the array by value in descending order
-    */
-      function sortnd();
-   /** --- void sortnk ---
-    * Numerically sorts the array by key
-    * @param ascending [optional] True for ascending sort, false for descending sort
-    */
-      function sortnk( bool ascending=false );
-   /** --- void sortnka ---
-    * Numerical sorts the array by key in ascending order
-    */
-      function sortnka();
-   /** --- void sortnkd ---
-    * Numerical sorts the array by key in descending order
-    */
-      function sortnkd();
-   /** --- void sortf ---
-    * Sorts the array by value in ascending order using the given callback function.
-    * @param functionName Name of a function that takes two arguments A and B and returns -1 if A is less, 1 if B is less, and 0 if both are equal.
-    * @tsexample
-    * function mySortCallback(%a, %b)
-    * {
-    *    return strcmp( %a.name, %b.name );
-    * }
-    * %array.sortf( "mySortCallback" );
-    * @endtsexample
-    */
-      function sortf( string functionName );
-   /** --- void sortfk ---
-    * Sorts the array by key in ascending order using the given callback function.
-    * @param functionName Name of a function that takes two arguments A and B and returns -1 if A is less, 1 if B is less, and 0 if both are equal.@see sortf
-    */
-      function sortfk( string functionName );
-   /** --- void sortfd ---
-    * Sorts the array by value in descending order using the given callback function.
-    * @param functionName Name of a function that takes two arguments A and B and returns -1 if A is less, 1 if B is less, and 0 if both are equal.@see sortf
-    */
-      function sortfd( string functionName );
-   /** --- void sortfkd ---
-    * Sorts the array by key in descending order using the given callback function.
-    * @param functionName Name of a function that takes two arguments A and B and returns -1 if A is less, 1 if B is less, and 0 if both are equal.@see sortf
-    */
-      function sortfkd( string functionName );
-   /** --- S32 moveFirst ---
-    * Moves array pointer to start of array
-    * @return Returns the new array pointer
-    * @return S32
-    */
-      function moveFirst();
-   /** --- S32 moveLast ---
-    * Moves array pointer to end of array
-    * @return Returns the new array pointer
-    * @return S32
-    */
-      function moveLast();
-   /** --- S32 moveNext ---
-    * Moves array pointer to next position
-    * @return Returns the new array pointer, or -1 if already at the end
-    * @return S32
-    */
-      function moveNext();
-   /** --- S32 movePrev ---
-    * Moves array pointer to prev position
-    * @return Returns the new array pointer, or -1 if already at the start
-    * @return S32
-    */
-      function movePrev();
-   /** --- S32 getCurrent ---
-    * Gets the current pointer index
-    * @return S32
-    */
-      function getCurrent();
-   /** --- void setCurrent ---
-    * Sets the current pointer index.
-    * @param index New 0-based pointer index
-    */
-      function setCurrent( int index );
-   /** --- void echo ---
-    * Echos the array contents to the console
-    */
-      function echo();
-   /*!
-   Makes the keys and values case-sensitive.
-By default, comparison of key and value strings will be case-insensitive.
-   
-    */
-   bool caseSensitive;
-   /*!
-   Helper field which allows you to add new key['keyname'] = value pairs.
-   
-    */
-   caseString key;
    // --- Group: Ungrouped ---
    // --- Group: Object ---
    // --- Group: Persistence ---
@@ -1724,57 +1441,6 @@ class  PointStorageObject : public SimObject {
     */
    uint storageSize;
 };
-class  ValueStorageObject : public SimObject {
-  public:
-   /** --- F64 getFloat ---
-    * get the float (double)value at index
-    * @return F64
-    */
-      function getFloat( int index );
-   /** --- bool setFloat ---
-    * set the float(double) value at index
-    * @return bool
-    */
-      function setFloat( int index, F64 value );
-   /** --- S64 getInt ---
-    * get the integer(long) value at index
-    * @return S64
-    */
-      function getInt( int index );
-   /** --- bool setInt ---
-    * set the integer(long) value at index
-    * @return bool
-    */
-      function setInt( int index, F64 value );
-   /** --- const char* getString ---
-    * get the sttring value at index
-    * @return const char*
-    */
-      function getString( int index );
-   /** --- bool setString ---
-    * set the string value at index
-    * @return bool
-    */
-      function setString( int index, string value );
-   /** --- ConsoleVector getVector ---
-    * get the Vector value at index
-    * @return ConsoleVector
-    */
-      function getVector( int index );
-   /** --- bool setVector ---
-    * set the vector value at index
-    * @return bool
-    */
-      function setVector( int index, ConsoleVector value );
-   // --- Group: Ungrouped ---
-   // --- Group: Object ---
-   // --- Group: Persistence ---
-   /*!
-   Set the storage size (how many Values we can work with) Max:1000000.
-   
-    */
-   uint storageSize;
-};
 class  NeuralNetObject : public SimObject {
   public:
    /** --- bool init ---
@@ -1832,16 +1498,6 @@ class  NeuralNetObject : public SimObject {
     * @return bool
     */
       function setIn( int index, F64 value );
-   /** --- ConsoleVector getInVec ---
-    * get 4 input values at index by ConsoleVector
-    * @return ConsoleVector
-    */
-      function getInVec( int index );
-   /** --- bool setInVec ---
-    * Set 4 input values at index by ConsoleVector
-    * @return bool
-    */
-      function setInVec( int index, ConsoleVector value );
    /** --- F64 getOut ---
     * Get the output value at index
     * @return F64
@@ -1852,16 +1508,6 @@ class  NeuralNetObject : public SimObject {
     * @return bool
     */
       function setOut( int index, F64 value );
-   /** --- ConsoleVector getOutVec ---
-    * get 4 output values at index by ConsoleVector
-    * @return ConsoleVector
-    */
-      function getOutVec( int index );
-   /** --- bool setOutVec ---
-    * Set 4 output values at index by ConsoleVector
-    * @return bool
-    */
-      function setOutVec( int index, ConsoleVector value );
    /** --- void setActivationHidden ---
     * Sets the hidden layer activation type.
     *  default/0: genann_act_sigmoid_cached, 1: genann_act_tanh, 2:genann_act_relu, 3: genann_act_linear
@@ -1885,118 +1531,359 @@ Level: Normal=0, Warning=1, Error=2; Info=3; Debug=4 */
    // --- Group: Object ---
    // --- Group: Persistence ---
 };
-/*!
-@brief Provides access to a zip file.
-A ZipObject add, delete and extract files that are within a zip archive.  You may also read and write directly to the files within the archive by obtaining a StreamObject for the file.@tsexample
-// Open a zip archive, creating it if it doesn't exist
-%archive = new ZipObject();
-%archive.openArchive("testArchive.zip", Write);
-// Add a file to the archive with the given name
-%archive.addFile("./water.png", "water.png");
-// Close the archive to save the changes
-%archive.closeArchive();
-@endtsexample
-@note Behind the scenes all of the work is being done with the ZipArchive and StreamObject classes.
-@see StreamObject when using methods such as openFileForRead() and openFileForWrite()
-@ingroup FileSystem
- */
-class  ZipObject : public SimObject {
+class  Array : public SimObject {
   public:
-   /** --- bool openArchive ---
-    * @brief Open a zip archive for manipulation.
-    * Once a zip archive is opened use the various ZipObject methods for working with the files within the archive.  Be sure to close the archive when you are done with it.
-    * @param filename The path and file name of the zip archive to open.
-    * @param accessMode One of read, write or readwrite
-    * @return True is the archive was successfully opened.
-    * @note If you wish to make any changes to the archive, be sure to open it with a write or readwrite access mode.
-    * @see closeArchive()
-    * @return bool
+   /** --- ConsoleValue at ---
+    * fetch a value at index
+    * @return ConsoleValue
     */
-      function openArchive( string filename, string accessMode="read" );
-   /** --- void closeArchive ---
-    * @brief Close an already opened zip archive.
-    * @see openArchive()
+      function at( int index );
+   /** --- ConsoleValue first ---
+    * fetch first 
+    * @return ConsoleValue
     */
-      function closeArchive();
-   /** --- SimObject* openFileForRead ---
-    * @brief Open a file within the zip archive for reading.
-    * Be sure to close the file when you are done with it.
-    * @param filename The path and name of the file to open within the zip archive.
-    * @return A standard StreamObject is returned for working with the file.
-    * @note You must first open the zip archive before working with files within it.
-    * @see closeFile()
-    * @see openArchive()
-    * @return SimObject*
+      function first();
+   /** --- ConsoleValue last ---
+    * fetch last 
+    * @return ConsoleValue
     */
-      function openFileForRead( string filename );
-   /** --- SimObject* openFileForWrite ---
-    * @brief Open a file within the zip archive for writing to.
-    * Be sure to close the file when you are done with it.
-    * @param filename The path and name of the file to open within the zip archive.
-    * @return A standard StreamObject is returned for working with the file.
-    * @note You must first open the zip archive before working with files within it.
-    * @see closeFile()
-    * @see openArchive()
-    * @return SimObject*
-    */
-      function openFileForWrite( string filename );
-   /** --- void closeFile ---
-    * @brief Close a previously opened file within the zip archive.
-    * @param stream The StreamObject of a previously opened file within the zip archive.
-    * @see openFileForRead()
-    * @see openFileForWrite()
-    */
-      function closeFile( SimObject stream );
-   /** --- bool addFile ---
-    * @brief Add a file to the zip archive
-    * @param filename The path and name of the file to add to the zip archive.
-    * @param pathInZip The path and name to be given to the file within the zip archive.
-    * @param replace If a file already exists within the zip archive at the same location as this new file, this parameter indicates if it should be replaced.  By default, it will be replaced.
-    * @return True if the file was successfully added to the zip archive.
-    * @return bool
-    */
-      function addFile( string filename, string pathInZip, bool replace=true );
-   /** --- bool extractFile ---
-    * @brief Extact a file from the zip archive and save it to the requested location.
-    * @param pathInZip The path and name of the file to be extracted within the zip archive.
-    * @param filename The path and name to give the extracted file.
-    * @return True if the file was successfully extracted.
-    * @return bool
-    */
-      function extractFile( string pathInZip, string filename );
-   /** --- bool deleteFile ---
-    * @brief Deleted the given file from the zip archive
-    * @param pathInZip The path and name of the file to be deleted from the zip archive.
-    * @return True of the file was successfully deleted.
-    * @note Files that have been deleted from the archive will still show up with a getFileEntryCount() until you close the archive.  If you need to have the file count up to date with only valid files within the archive, you could close and then open the archive again.
-    * @see getFileEntryCount()
-    * @see closeArchive()
-    * @see openArchive()
-    * @return bool
-    */
-      function deleteFile( string pathInZip );
-   /** --- S32 getFileEntryCount ---
-    * @brief Get the number of files within the zip archive.
-    * Use getFileEntry() to retrive information on each file within the archive.
-    * @return The number of files within the zip archive.
-    * @note The returned count will include any files that have been deleted from the archive using deleteFile().  To clear out all deleted files, you could close and then open the archive again.
-    * @see getFileEntry()
-    * @see closeArchive()
-    * @see openArchive()
+      function last();
+   /** --- S32 size ---
+    * get the size
     * @return S32
     */
-      function getFileEntryCount();
-   /** --- String getFileEntry ---
-    * @brief Get information on the requested file within the zip archive.
-    * This methods provides five different pieces of information for the requested file:
-    * <ul><li>filename - The path and name of the file within the zip archive</li><li>uncompressed size</li><li>compressed size</li><li>compression method</li><li>CRC32</li></ul>
-    * Use getFileEntryCount() to obtain the total number of files within the archive.
-    * @param index The index of the file within the zip archive.  Use getFileEntryCount() to determine the number of files.
-    * @return A tab delimited list of information on the requested file, or an empty string if the file could not be found.
-    * @see getFileEntryCount()
-    * @return String
+      function size();
+   /** --- void clear ---
+    * clear the Vector
     */
-      function getFileEntry( int index );
+      function clear();
+   /** --- void reserve ---
+    * reserve elements in the array
+    */
+      function reserve( uint size );
+   /** --- void fill ---
+    * fill the array with value
+    */
+      function fill( ConsoleValue value );
+   /** --- void push_back ---
+    * push back a value
+    */
+      function push_back( ConsoleValue value );
+   /** --- bool set ---
+    * set a value at index
+    * @return bool
+    */
+      function set( int index, ConsoleValue value );
+   /** --- bool insert ---
+    * insert a value at index
+    * @return bool
+    */
+      function insert( int position, ConsoleValue value );
+   /** --- bool erase ---
+    * @return bool
+    */
+      function erase( int position );
+   /** --- ConsoleValue pop_front ---
+    * pop the first and return the removed value
+    * @return ConsoleValue
+    */
+      function pop_front();
+   /** --- ConsoleValue pop_back ---
+    * pop the last and return the remove value
+    * @return ConsoleValue
+    */
+      function pop_back();
+   /** --- void list ---
+    * List the values
+    */
+      function list();
+   // --- Group: Ungrouped ---
+   // --- Group: Object ---
+   // --- Group: Persistence ---
+};
+/*!
+@brief Data structure for storing indexed sequences of key/value pairs.
+This is a powerful array class providing PHP style arrays in TorqueScript.
+The following features are supported:<ul>
+<li>array pointers: this allows you to move forwards or backwards through the array as if it was a list, including jumping to the start or end.</li>
+<li>sorting: the array can be sorted in either alphabetic or numeric mode, on the key or the value, and in ascending or descending order</li>
+<li>add/remove elements: elements can be pushed/popped from the start or end of the array, or can be inserted/erased from anywhere in the middle</li>
+<li>removal of duplicates: remove duplicate keys or duplicate values</li>
+<li>searching: search the array and return the index of a particular key or value</li>
+<li>counting: count the number of instaces of a particular value or key in the array, as well as the total number of elements</li>
+<li>advanced features: array append, array crop and array duplicate</li>
+</ul>
+Array element keys and values can be strings or numbers
+ */
+class  KeyValueStringTable : public SimObject {
+  public:
+   /** --- S32 getIndexFromValue ---
+    * Search the array from the current position for the element @param value Array value to search for
+    * @return Index of the first element found, or -1 if none
+    * @return S32
+    */
+      function getIndexFromValue( string value );
+   /** --- S32 getIndexFromKey ---
+    * Search the array from the current position for the key @param value Array key to search for
+    * @return Index of the first element found, or -1 if none
+    * @return S32
+    */
+      function getIndexFromKey( string key );
+   /** --- const char* getValueFromKey ---
+    * Search the array from the current position for the Key @param value Array key to search for
+    * @return Value of the first element found, or -1 if none
+    * @return const char*
+    */
+      function getValueFromKey( string key );
+   /** --- const char* getKeyFromValue ---
+    * Search the array from the current position for the Value @param value Array key to search for
+    * @return Key of the first element found, or -1 if none
+    * @return const char*
+    */
+      function getKeyFromValue( string key );
+   /** --- const char* getValue ---
+    * Get the value of the array element at the submitted index.
+    * @param index 0-based index of the array element to get
+    * @return The value of the array element at the specified index, or "" if the index is out of range
+    * @return const char*
+    */
+      function getValue( int index );
+   /** --- const char* getKey ---
+    * Get the key of the array element at the submitted index.
+    * @param index 0-based index of the array element to get
+    * @return The key associated with the array element at the specified index, or "" if the index is out of range
+    * @return const char*
+    */
+      function getKey( int index );
+   /** --- void setKey ---
+    * Set the key at the given index.
+    * @param key New key value
+    * @param index 0-based index of the array element to update
+    */
+      function setKey( string key, int index );
+   /** --- void setValue ---
+    * Set the value at the given index.
+    * @param value New array element value
+    * @param index 0-based index of the array element to update
+    */
+      function setValue( string value, int index );
+   /** --- S32 count ---
+    * Get the number of elements in the array.
+    * @return S32
+    */
+      function count();
+   /** --- S32 countValue ---
+    * Get the number of times a particular value is found in the array.
+    * @param value Array element value to count
+    * @return S32
+    */
+      function countValue( string value );
+   /** --- S32 countKey ---
+    * Get the number of times a particular key is found in the array.
+    * @param key Key value to count
+    * @return S32
+    */
+      function countKey( string key );
+   /** --- void add ---
+    * Adds a new element to the end of an array (same as push_back()).
+    * @param key Key for the new element
+    * @param value Value for the new element
+    */
+      function add( string key, string value="" );
+   /** --- void push_back ---
+    * Adds a new element to the end of an array.
+    * @param key Key for the new element
+    * @param value Value for the new element
+    */
+      function push_back( string key, string value="" );
+   /** --- void push_front ---
+    * Adds a new element to the front of an array
+    */
+      function push_front( string key, string value="" );
+   /** --- void insert ---
+    * Adds a new element to a specified position in the array.
+    * - @a index = 0 will insert an element at the start of the array (same as push_front())
+    * - @a index = %array.count() will insert an element at the end of the array (same as push_back())
+    * @param key Key for the new element
+    * @param value Value for the new element
+    * @param index 0-based index at which to insert the new element
+    */
+      function insert( string key, string value, int index );
+   /** --- void pop_back ---
+    * Removes the last element from the array
+    */
+      function pop_back();
+   /** --- void pop_front ---
+    * Removes the first element from the array
+    */
+      function pop_front();
+   /** --- void erase ---
+    * Removes an element at a specific position from the array.
+    * @param index 0-based index of the element to remove
+    */
+      function erase( int index );
+   /** --- void empty ---
+    * Emptys all elements from an array
+    */
+      function empty();
+   /** --- void uniqueValue ---
+    * Removes any elements that have duplicated values (leaving the first instance)
+    */
+      function uniqueValue();
+   /** --- void uniqueKey ---
+    * Removes any elements that have duplicated keys (leaving the first instance)
+    */
+      function uniqueKey();
+   /** --- void uniquePair ---
+    * Removes any elements that have duplicated key and value pairs (leaving the first instance)
+    */
+      function uniquePair();
+   /** --- bool duplicate ---
+    * Alters array into an exact duplicate of the target array.
+    * @param target KeyValueStringTable to duplicate
+    * @return bool
+    */
+      function duplicate( KeyValueStringTable target );
+   /** --- bool crop ---
+    * Removes elements with matching keys from array.
+    * @param target KeyValueStringTable containing keys to remove from this array
+    * @return bool
+    */
+      function crop( KeyValueStringTable target );
+   /** --- bool append ---
+    * Appends the target array to the array object.
+    * @param target KeyValueStringTable to append to the end of this array
+    * @return bool
+    */
+      function append( KeyValueStringTable target );
+   /** --- void sort ---
+    * Alpha sorts the array by value
+    * @param ascending [optional] True for ascending sort, false for descending sort
+    */
+      function sort( bool ascending=false );
+   /** --- void sorta ---
+    * Alpha sorts the array by value in ascending order
+    */
+      function sorta();
+   /** --- void sortd ---
+    * Alpha sorts the array by value in descending order
+    */
+      function sortd();
+   /** --- void sortk ---
+    * Alpha sorts the array by key
+    * @param ascending [optional] True for ascending sort, false for descending sort
+    */
+      function sortk( bool ascending=false );
+   /** --- void sortka ---
+    * Alpha sorts the array by key in ascending order
+    */
+      function sortka();
+   /** --- void sortkd ---
+    * Alpha sorts the array by key in descending order
+    */
+      function sortkd();
+   /** --- void sortn ---
+    * Numerically sorts the array by value
+    * @param ascending [optional] True for ascending sort, false for descending sort
+    */
+      function sortn( bool ascending=false );
+   /** --- void sortna ---
+    * Numerically sorts the array by value in ascending order
+    */
+      function sortna();
+   /** --- void sortnd ---
+    * Numerically sorts the array by value in descending order
+    */
+      function sortnd();
+   /** --- void sortnk ---
+    * Numerically sorts the array by key
+    * @param ascending [optional] True for ascending sort, false for descending sort
+    */
+      function sortnk( bool ascending=false );
+   /** --- void sortnka ---
+    * Numerical sorts the array by key in ascending order
+    */
+      function sortnka();
+   /** --- void sortnkd ---
+    * Numerical sorts the array by key in descending order
+    */
+      function sortnkd();
+   /** --- void sortf ---
+    * Sorts the array by value in ascending order using the given callback function.
+    * @param functionName Name of a function that takes two arguments A and B and returns -1 if A is less, 1 if B is less, and 0 if both are equal.
+    * @tsexample
+    * function mySortCallback(%a, %b)
+    * {
+    *    return strcmp( %a.name, %b.name );
+    * }
+    * %array.sortf( "mySortCallback" );
+    * @endtsexample
+    */
+      function sortf( string functionName );
+   /** --- void sortfk ---
+    * Sorts the array by key in ascending order using the given callback function.
+    * @param functionName Name of a function that takes two arguments A and B and returns -1 if A is less, 1 if B is less, and 0 if both are equal.@see sortf
+    */
+      function sortfk( string functionName );
+   /** --- void sortfd ---
+    * Sorts the array by value in descending order using the given callback function.
+    * @param functionName Name of a function that takes two arguments A and B and returns -1 if A is less, 1 if B is less, and 0 if both are equal.@see sortf
+    */
+      function sortfd( string functionName );
+   /** --- void sortfkd ---
+    * Sorts the array by key in descending order using the given callback function.
+    * @param functionName Name of a function that takes two arguments A and B and returns -1 if A is less, 1 if B is less, and 0 if both are equal.@see sortf
+    */
+      function sortfkd( string functionName );
+   /** --- S32 moveFirst ---
+    * Moves array pointer to start of array
+    * @return Returns the new array pointer
+    * @return S32
+    */
+      function moveFirst();
+   /** --- S32 moveLast ---
+    * Moves array pointer to end of array
+    * @return Returns the new array pointer
+    * @return S32
+    */
+      function moveLast();
+   /** --- S32 moveNext ---
+    * Moves array pointer to next position
+    * @return Returns the new array pointer, or -1 if already at the end
+    * @return S32
+    */
+      function moveNext();
+   /** --- S32 movePrev ---
+    * Moves array pointer to prev position
+    * @return Returns the new array pointer, or -1 if already at the start
+    * @return S32
+    */
+      function movePrev();
+   /** --- S32 getCurrent ---
+    * Gets the current pointer index
+    * @return S32
+    */
+      function getCurrent();
+   /** --- void setCurrent ---
+    * Sets the current pointer index.
+    * @param index New 0-based pointer index
+    */
+      function setCurrent( int index );
+   /** --- void echo ---
+    * Echos the array contents to the console
+    */
+      function echo();
+   /*!
+   Makes the keys and values case-sensitive.
+By default, comparison of key and value strings will be case-insensitive.
+   
+    */
+   bool caseSensitive;
+   /*!
+   Helper field which allows you to add new key['keyname'] = value pairs.
+   
+    */
+   caseString key;
    // --- Group: Ungrouped ---
    // --- Group: Object ---
    // --- Group: Persistence ---
@@ -2987,6 +2874,13 @@ namespace Global {
     * Print a separator line
     */
       function printSeparator();
+   /** --- void sysprint ---
+    * @brief Logs a message to std out only 
+    * Concatenates all given arguments to a single string and prints the string to the console.
+    * A newline is added automatically after the text.
+    * @param message Any number of string arguments.
+    */
+      function sysprint( string message... );
    /** --- void warn ---
     * @brief Logs a warning message to the console.
     * Concatenates all given arguments to a single string and prints the string to the console as a warning message (in the in-game console, these will show up using a turquoise font by default). A newline is added automatically after the text.
@@ -3270,6 +3164,10 @@ namespace Global {
     * @ingroup Debugging
     */
       function trace( bool enable=true );
+   /** --- void listFeatures ---
+    * List compiled features
+    */
+      function listFeatures();
    /** --- bool isDebugBuild ---
     * Test whether the engine has been compiled with TORQUE_DEBUG, i.e. if it includes debugging functionality.
     * @return True if this is a debug build; false otherwise.
@@ -3510,13 +3408,13 @@ namespace Global {
     * @note This function is only available in debug builds and primarily meant as an aid in debugging.@ingroup Console
     */
       function debugEnumInstances( string className, string functionName );
-   /** --- ArrayObject* getMethodSigsNS ---
+   /** --- KeyValueStringTable* getMethodSigsNS ---
     * List the methods defined on this object.
     * Each description is a newline-separated vector with the following elements:
     * - method prototype string.
     * - Documentation string (not including prototype).  This takes up the remainder of the vector.
-    * @return An ArrayObject populated with (name,description) pairs of all methods defined on the object.
-    * @return ArrayObject*
+    * @return An KeyValueStringTable populated with (name,description) pairs of all methods defined on the object.
+    * @return KeyValueStringTable*
     */
       function getMethodSigsNS( StringTableEntry className, bool commands=false );
    /** --- S32 getFieldCountNS ---
@@ -3579,13 +3477,13 @@ namespace Global {
     * @return S32
     */
       function explodeGlobal( string varName, bool debugOut=false );
-   /** --- S32 explodeObject ---
+   /** --- S32 explodeToObject ---
     * Convert an string to Object with v[] fields
     * tab separated (default) or space separated
     * WARNING you need to delete the object after it's not longer needed.
     * @return S32
     */
-      function explodeObject( string text );
+      function explodeToObject( string text );
    /** --- void TEST_VAR_CREATE ---
     * must be test inside and outside a function!
     */
@@ -4010,19 +3908,17 @@ namespace Global {
     * @return bool
     */
       function SDL_FileExists( string path );
-   /** --- bool SDL_GetPathInfo ---
-    * resultObjectId is the object which gets it dynamic fields filled with informationreturn true if the file exits
-    * @return bool
+   /** --- SimObject* SDL_GetPathInfo ---
+    * return an object  if the file exits with dynamic fields
+    * @return SimObject*
     */
-      function SDL_GetPathInfo( string path, int resultObjectId );
-   /** --- bool SDL_GlobDirectory ---
-    * resultObjectId is the object which gets it dynamic fields filled with information
-    * dynamic parameters are: query_path, query_pattern, query_ignorecase
-    * for the result: count, result_[i]
+      function SDL_GetPathInfo( string path );
+   /** --- Array* SDL_GlobDirectory ---
+    * scan a directory and return an Array Object with: dynamic parameters are: query_path, query_pattern, query_ignorecase
     * return true if result was not empty.
-    * @return bool
+    * @return Array*
     */
-      function SDL_GlobDirectory( string path, int resultObjectId, string pattern="*", bool patternIgnoreCase=true );
+      function SDL_GlobDirectory( string path, string pattern="*", bool patternIgnoreCase=true );
    /** --- bool SDL_CopyFile ---
     * Copy a file.
     * @return bool

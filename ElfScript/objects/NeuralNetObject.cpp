@@ -4,6 +4,7 @@
 //-----------------------------------------------------------------------------
 // NeuralNetObject: Genann ElfScript Object
 // TODO: add Constants for activation type
+// NOTE: if you need better input/output handline add Array*
 //-----------------------------------------------------------------------------
 #include <SDL3/SDL.h>
 
@@ -257,25 +258,7 @@ public:
         }
         return true;
     }
-    // ------------------------------------------------------------------------
-    // return a set of 4 values a
-    inline ConsoleVector getInputVec(S32 startindex) {
-        ConsoleVector result = {0};
-        if (startindex < 0 || startindex >= mInputs.size()) return result;
-        S32 endindex = ElfMath::getMin(startindex + 4, mInputs.size());
-        for (S32 i = startindex;i < endindex; i++) {
-            result.points[i-startindex] = (F32)mInputs[i];
-        }
-        return result;
-    }
-    inline bool setInputVec(S32 startindex, const ConsoleVector& vec) {
-        if (startindex < 0 || startindex >= mInputs.size()) return false;
-        S32 endindex = ElfMath::getMin(startindex + 4, mInputs.size());
-        for (S32 i = startindex;i < endindex; i++) {
-            mInputs[i] = (F64)vec.points[i-startindex];
-        }
-        return true;
-    }
+
     // ------------------------------------------------------------------------
     inline F64 getInputValue(S32 index) {
         if (index < 0 || index >= mInputs.size()) return 0.0;
@@ -299,24 +282,6 @@ public:
         return true;
     }
     // ------------------------------------------------------------------------
-    // return a set of 4 values a
-    inline ConsoleVector getOutputVec(S32 startindex) {
-        ConsoleVector result = {0};
-        if (startindex < 0 || startindex >= mOutputs.size()) return result;
-        S32 endindex = ElfMath::getMin(startindex + 4, mInputs.size());
-        for (S32 i = startindex;i < endindex; i++) {
-            result.points[i-startindex] = (F32)mOutputs[i];
-        }
-        return result;
-    }
-    inline bool setOutputVec(S32 startindex, const ConsoleVector& vec) {
-        if (startindex < 0 || startindex >= mOutputs.size()) return false;
-        S32 endindex = ElfMath::getMin(startindex + 4, mInputs.size());
-        for (S32 i = startindex;i < endindex; i++) {
-            mOutputs[i] = (F64)vec.points[i-startindex];
-        }
-        return true;
-    }
 
 
 }; // class
@@ -383,12 +348,7 @@ DefineEngineMethod(NeuralNetObject, getIn, F64,(S32 index),,"Get the input value
 DefineEngineMethod(NeuralNetObject, setIn, bool,(S32 index, F64 value),,"Set the input value at index") {
     return object->setInputValue(index, value);
 }
-DefineEngineMethod(NeuralNetObject, getInVec, ConsoleVector,(S32 index),,"get 4 input values at index by ConsoleVector") {
-    return object->getInputVec(index);
-}
-DefineEngineMethod(NeuralNetObject, setInVec, bool,(S32 index, ConsoleVector value),,"Set 4 input values at index by ConsoleVector") {
-    return object->setInputVec(index, value);
-}
+
 // ---  output
 DefineEngineMethod(NeuralNetObject, getOut, F64,(S32 index),,"Get the output value at index") {
     return object->getOutputValue(index);
@@ -396,12 +356,7 @@ DefineEngineMethod(NeuralNetObject, getOut, F64,(S32 index),,"Get the output val
 DefineEngineMethod(NeuralNetObject, setOut, bool,(S32 index, F64 value),,"Set the output value at index") {
     return object->setOutputValue(index, value);
 }
-DefineEngineMethod(NeuralNetObject, getOutVec, ConsoleVector,(S32 index),,"get 4 output values at index by ConsoleVector") {
-    return object->getOutputVec(index);
-}
-DefineEngineMethod(NeuralNetObject, setOutVec, bool,(S32 index, ConsoleVector value),,"Set 4 output values at index by ConsoleVector") {
-    return object->setOutputVec(index, value);
-}
+
 // ------------------------------------------------------------------------
 // activation types
 // ------------------------------------------------------------------------
