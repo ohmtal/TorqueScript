@@ -31,12 +31,13 @@ it can matter.
 
 
 
-## named objects vs Object-ID
+## Named Objects vs Object-ID
 
 When you create a object with `new SimObject(foo);` you can access the object
-with `foo.dumpFields`. When you have to use this a lot it's better to set : 
-`%fooObj = foo.getID();` and then work with the id `%fooObj.myMethod`. In 
+with `foo.myMethod();`. When you have to use this a lot it's better to set : 
+`%fooObj = foo.getID();` and then work with the id `%fooObj.myMethod();`. In 
 Methods you use %this which is a local variable anyway.
+ 
 
 
 ## Dynamic fields: 
@@ -45,8 +46,9 @@ You can set a Type on Dynamic Fields.
 
 Common Types are: 
 
-- TypeS32 for integer
-- TypeF32 for float 
+- TypeS64 for integer
+- TypeF64 for float 
+- TypeVecor for an 4 point vector
 
 if you set nothing it's set as string. 
 
@@ -57,29 +59,29 @@ Example:
 
 ```
 $posObj = new ScriptObject() {
-    TypeF32 x = 0;
-    TypeF32 y = 0;
+    TypeF64 x = 0.0;
+    TypeF64 y = 0.0;
 };
 ```
     
 You can also add a new typed field with:
 
 ```
-$posObj.addField("z", "TypeF32", 0);
+$posObj.addField("z", "TypeF64", 0.0);
 $posObj.dumpFields(); 
 ```
-Note with this function the type need to set as String. 
+
 I use $posObj because this works also if you test this scripts in the console 
 using BaseElf.
 
-You can also use `$posObj.setFieldType("m0", "TypeF32");` but then the field
-m0 must exists. Example: `$posObj.m0=0; $posObj.setFieldType("m0", "TypeF32");`.
+You can also use `$posObj.setFieldType("m0", "TypeF64");` but then the field
+m0 must exists. Example: `$posObj.m0=0; $posObj.setFieldType("m0", "TypeF64");`.
 
 ## foreach
 
 foreach is faster than while or for. 
 
-Foreach on SimSets: 
+Foreach on SimSets, Arrays or Strings: 
 
 ```
     // dummy simgroup : 
@@ -98,7 +100,8 @@ Foreach on SimSets:
     %mySimGroup.delete();
 ```
 
-Foreach on space separated strings (words):
+Foreach on space separated strings (words) 
+(since ElfScript 0.7 you can also use foreach only for strings):
 
 ```
     // for "slow" style
@@ -124,6 +127,8 @@ foreach on integer:
 
     // fast foreach:
     foreach (%i in range 0..5)  echo("foreach: i is: ", %i);
+    foreach (%i in range 5)  echo("foreach: i is: ", %i);
+    
 ```
 
 

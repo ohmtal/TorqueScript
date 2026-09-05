@@ -92,6 +92,6 @@ GameGroup.delete();
 echo("Object exits:" SPC isObject($saveID));
 ```
 
-[Optimize for Speed](./Optimize.md) 
+[Arrays, Lists and Key Value Tables](./ArraysAndMore.md)
 
 [Back to Main](./Main.md)
