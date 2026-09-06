@@ -202,20 +202,19 @@ DefineEngineFunction(SDL_GetRenderDriver, const char *  , (S32 index),,"") {
 //
 // Test:
 // print(SDL_CreateWindowAndRenderer("Hello SDL3", 800, 450, SDL_WINDOW_RESIZABLE));
-DefineEngineFunction( SDL_CreateWindowAndRenderer, const char *,
+// se
+DefineEngineFunction( SDL_CreateWindowAndRenderer, ConsoleVector,
     (const char* title, S32 width, S32 height, U64 window_flags),
-    ,"This create a SDL_Window and SDL_Renderer.\n@return String: '1 [WindowID] [RenderID]' or '0' if failed") {
+    ,"This create a SDL_Window and SDL_Renderer.\n@return Vector: '.y= [WindowID] .x=[RenderID]' or '0' if failed\n"
+        "See also event: onSDL_EVENT_WINDOW_CLOSE_REQUESTED(id) and SDL_DestroyWindow" ) {
     SDL_Renderer* renderer;
     SDL_Window* window;
+    ConsoleVector result = {0};
     if (SDL_CreateWindowAndRenderer(title, width, height, window_flags, &window, &renderer)) {
-       S32 windowID =  WindowMap.add(window);
-       S32 rendererID =  RendererMap.add(renderer);
-       StringBuilder result;
-       result.format("1 %d %d", windowID, rendererID);
-       return result.end().c_str();
-    } else {
-        return "0";
+       result.points[0] = (F32) WindowMap.add(window);
+       result.points[1] = (F32) RendererMap.add(renderer);
     }
+    return result;
 }
 
 // NOTE:SDL_video.h!! extern SDL_DECLSPEC SDL_Window * SDLCALL SDL_CreateWindow(const char *title, int w, int h, SDL_WindowFlags flags);

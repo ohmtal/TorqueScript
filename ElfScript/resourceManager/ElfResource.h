@@ -104,6 +104,30 @@ struct ElfStorage {
         mId = 0;
     }
 
+    // -------------------------------------------------------------------------
+    S32 getId(const T& item) const {
+        if (!item) return 0;
+        for (const auto& [key, val] : mMap) {
+            if (val == item) {
+                return key;
+            }
+        }
+        return 0;
+    }
+
+    S32 getIdByAddress(const typename std::conditional_t<std::is_pointer_v<T>, T, const T*> itemPtr) const {
+        if (!itemPtr) return 0;
+
+        for (const auto& [key, val] : mMap) {
+            if constexpr (std::is_pointer_v<T>) {
+                if (val == itemPtr) return key;
+            } else {
+                if (&val == itemPtr) return key;
+            }
+        }
+        return 0;
+    }
+
 };
 // -------------------------------------------------------------------------
 // ************** USAGE EXAMPLES FROM raylib-elfscript *********************
