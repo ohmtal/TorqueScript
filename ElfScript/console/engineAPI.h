@@ -482,6 +482,12 @@ inline ConsoleValue _EngineConsoleThunkReturnValue( ConsoleValue value )
 
 #endif
 // -----------------------------------------------------------------------------
+// ElfScript 0.7
+inline U32 _EngineConsoleThunkReturnValue( U32 value )
+{
+      return value;
+}
+// -----------------------------------------------------------------------------
 inline S32 _EngineConsoleThunkReturnValue( S32 value )
 {
    return value;

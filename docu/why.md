@@ -39,7 +39,7 @@ I had created some Ohmflux bindings with KorkScript and so i ported this to
 the stand alone TorqueScript. I thought about a name and since Kork is in use 
 *hehe* I remembered the Elf which was in TGE 1.5 - I think. Finding a name for 
 a project is sometimes more difficult than writing it - So I decided to call it 
-ElfScript with is a mythical creature and the number eleven in german. 
+ElfScript which is a mythical creature and the number eleven in german. 
 
 ### raylib-ElfScript
 I was curious about raylib and had played a bit with it. Since there are so many

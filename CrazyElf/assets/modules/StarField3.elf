@@ -1,51 +1,62 @@
 // -----------------------------------------------------------------------------
 // ported from raylib-elfScript to BaseElf / NativSDL to CrazyElf
 // -----------------------------------------------------------------------------
+// Benchmark with points in a array
+// -----------------------------------------------------------------------------
 
 // orig 420
 #define STAR_COUNT 4200
 #define START_DIV 0.03125
 
-function createStarField() {
+function createStarField3() {
     %obj = new ScriptGroup() {
         class = "StarField";
         TypeF32 speed = 0.4;
         TypeBool drawLines = false;
+        TypeF32 screenHeight = 0.0;
+        TypeF32 screenWidth = 0.0;
+        TypeF32 minH = 0.0;
+        TypeF32 maxH = 0.0;
+        TypeF32 minW = 0.0;
+        TypeF32 maxW = 0.0;
+        TypeF32 halfW = 0.0;
+        TypeF32 halfH = 0.0;
+
     };
-    error("%obj.speed is" SPC %obj.speed);
     return %obj;
 }
 // -----------------------------------------------------------------------------
 function StarField::UpdateSize(%this) {
-    %this.screenSize = $Global::ScreenSize;
-    $screenWidth  = %this.screenSize.x;
-    $screenHeight = %this.screenSize.y;
+    %this.screenWidth  = $Global::ScreenSize.x;
+    %this.screenHeight = $Global::ScreenSize.y ;
 
     // save as min/max
-    $minH = -$screenWidth / 2;
-    $maxH = $screenWidth / 2;
-    $minW = -$screenHeight / 2;
-    $maxW = $screenHeight / 2;
+    %this.minW = -%this.screenWidth / 2.0;
+    %this.maxW = %this.screenWidth / 2.0;
 
-    $hW = $screenWidth  * 0.5;
-    $hH = $screenHeight  * 0.5;
+    %this.minH = -%this.screenHeight / 2.0;
+    %this.maxH = %this.screenHeight / 2.0;
+
+    %this.halfW = %this.maxW;
+    %this.halfH = %this.maxH;
+
+    // %this.dumpFields();
+
 }
 // -----------------------------------------------------------------------------
 function StarField::OnAdd(%this) {
 
-    SetClearBackground({ 20, 20, 40 });
 
     %this.updateSize();
 
-    %this.add( new PointStorageObject(starPoints) {
-        storageSize = STAR_COUNT;
-    });
-
+    %this.add( %this.starArray = new Array());
 
     for(%i in range STAR_COUNT)
     {
-        starPoints.setPoint(%i, GetRandom($minH , $maxH),GetRandom($minW , $maxW), 1.0 );
-        // starPoints.setPoint(%i, math::randomf($minH , $maxH),math::randomf($minW , $maxW), 1.0 );
+        %v =  { math.randomf(%this.minW , %this.maxW),
+                math.randomf(%this.minW , %this.maxW),
+                1.0 };
+        %this.starArray.push_back(%v);
     }
 
     return true;
@@ -61,78 +72,65 @@ function StarField::Render(%this) {
      %dt = $Global::FrameTime;
     %renderer = $Main.renderer;
 
-     SDL_SetRenderDrawColor(%renderer, 20, 20, 60);
+     SDL_SetRenderDrawColor(%renderer, 60, 60, 20);
      SDL_RenderClear(%renderer);
 
-    %drawLines = %this.drawLines;
 
-    %speed = %this.speed;
     SDL_SetRenderDrawColor(%renderer, 255,255,255);
-
-    %lStarPoints = starPoints.getId(); // slightly faster
-
-    %ranMinH = $minH;
-    %ranMaxH = $maxH;
-    %ranMinW = $minW;
-    %ranMaxW = $maxW;
 
     // using local vars maximum attempt:
     for( %i in range STAR_COUNT )
     {
-        // this fetch/ setPoint combination is the fastest way i found so far.
-        // the local vars are fast anyway.
-        %lStarPoints.fetchPoint(%i);
-        %pointX = %lStarPoints.x;
-        %pointY = %lStarPoints.y;
-        %pointZ = %lStarPoints.z - %dt * %speed;
+
+        %pointVec = %this.starArray.at( %i );
+        %pointVec.z -= %dt * %this.speed;
 
         // Calculate the screen position
-        %invZ = 1.0 /  %pointZ;
-        %screenPos_X = $hW + (%pointX * %invZ);
-        %screenPos_Y = $hH + (%pointY * %invZ);
+        %invZ = 1.0 /  %pointVec.z;
+        %screenPos_X = %this.halfW + (%pointVec.x * %invZ);
+        %screenPos_Y = %this.halfH + (%pointVec.y * %invZ);
 
-        if ( %pointZ < 0.0 || %screenPos_X < 0.0 || %screenPos_Y < 0.0
-            || %screenPos_X > $screenWidth || %screenPos_Y > $screenHeight)
+        if ( %pointVec.z < 0.0 || %screenPos_X < 0.0 || %screenPos_Y < 0.0
+            || %screenPos_X > %this.screenWidth || %screenPos_Y > %this.screenHeight)
         {
-            %pointX = GetRandomF($minH, $maxH);
-            %pointY = GetRandomF($minW, $maxW);
-            %pointZ = 1.0;
-            %screenPos_X = $hW +  %pointX;
-            %screenPos_Y = $hH +  %pointY;
+            %pointVec.x = math.randomf(%this.minW , %this.maxW);
+            %pointVec.y =  math.randomf(%this.minH , %this.maxH);
+            %pointVec.z = 1.0;
+            %screenPos_X = %this.halfW + %pointVec.x;
+            %screenPos_Y = %this.halfH + %pointVec.y;
         }
         // <<<<<<<<<<<<<<<<<<<<<
-        if (%drawLines)
+        if (%this.drawLines)
         {
-            %t = mClampF(%pointZ + START_DIV , 0.0 , 1.0 );
+            %t = math.ClampF(%pointVec.z + START_DIV , 0.0 , 1.0 );
 
-            if ( (%t - %pointZ) > 1e-3)
+            if ( (%t - %pointVec.z) > 1e-3)
             {
                 %invT = 1.0 / %t;
-                %startX = $hW + ( %pointX * %invT);
-                %startY = $hH + (  %pointY * %invT);
+                %startX = %this.halfW  + ( %pointVec.x * %invT);
+                %startY = %this.halfH  + (  %pointVec.y * %invT);
 
                 SDL_RenderLine(%renderer,%startX, %startY, %screenPos_X, %screenPos_Y );
             }
         }
         else
         {
-            %radius = mLerp(2.0, 0.3, %pointZ);
+            %radius = math.Lerp(2.0, 0.3, %pointVec.z);
             // SDL_RenderRectF(%renderer, %screenPos_X, %screenPos_Y, %radius,%radius, true);
             SDL_RenderFillRect(%renderer, { %screenPos_X, %screenPos_Y, %radius,%radius});
         }
 
-        %lStarPoints.setPoint(%i, %pointX, %pointY, %pointZ);
+        %this.starArray.set(%i, %pointVec);
     }
-
 
     %fontScale = 0.7;
     SDL_SetRenderDrawColor(%renderer, 128,20,255);
     SDL_SetRenderScale(%renderer, %fontScale, %fontScale);
     %scale10 = 10 / %fontScale;
-    SDL_RenderDebugText(%renderer, %scale10 , 0 , sprintf("%d FPS",$Global::FPS));
-    SDL_RenderDebugText(%renderer, %scale10 , %scale10,sprintf("[MOUSE WHEEL] Current Speed: %.2f",%speed));
+    SDL_RenderDebugText(%renderer, %scale10 , 0 , sprintf("Points in a Array - %d FPS",$Global::FPS));
+    SDL_RenderDebugText(%renderer, %scale10 , %scale10,sprintf("[MOUSE WHEEL] Current Speed: %.2f",%this.speed));
     SDL_RenderDebugText(%renderer, %scale10 ,20 / %fontScale
-        ,sprintf("[SPACE] Current draw mode: %s", %this.drawLines ? "Lines" : "Rectangle" ));
+    ,sprintf("[SPACE] Current draw mode: %s", %this.drawLines ? "Lines" : "Rectangle" ));
     SDL_SetRenderScale(%renderer); //reset
 
 }
@@ -149,5 +147,5 @@ function StarField::onSDLKeyBoardEvent(%this,%scancode, %modifiers, %isDown, %is
 }
 function StarField::onSDLMouseButtonEvent(%this,%button, %isDown, %x, %y) {}
 function StarField::onSDLMouseWheelEvent(%this,%wheelX, %wheelY){
-    %this.speed = mClampF( %this.speed + %wheelY / 10.0 , 0.01, 5.0);
+    %this.speed = math.ClampF( %this.speed + %wheelY / 10.0 , 0.01, 5.0);
 }

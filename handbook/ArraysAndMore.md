@@ -7,7 +7,7 @@
 
 ## ConsoleVector (TypeVector) 
 
-ConsoleVector is can be primary used as a storage for Points, Rects, Colors. 
+ConsoleVector is primary used as a storage for Points, Rects, Colors. 
 It's a four point float structure. 
 
 Example setter: `%vec = {10,20,30,40};`

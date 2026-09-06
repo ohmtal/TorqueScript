@@ -33,7 +33,7 @@
 #include "console/scriptPreprocessor.h"
 #include "console/engineAPI.h"
 #include "console/consoleExtras.h" // for PoD types - dont forget to add the .cpp to your build
-
+#include "objects/Array.h"
 
 namespace ElfSDL3 {
 
@@ -271,6 +271,17 @@ DefineEngineFunction( SDL_SetWindowPosition, bool, (S32 WindowID, S32 x, S32 y),
 }
 
 // extern SDL_DECLSPEC bool SDLCALL SDL_GetWindowPosition(SDL_Window *window, int *x, int *y);
+DefineEngineFunction( SDL_GetWindowPosition, ConsoleVector, (S32 WindowID), ,"Get the Window position") {
+    ConsoleVector result = {};
+    SDL_Window* window  = WindowMap.getValue(WindowID);
+    if (!window) return result;
+    int x; int y;
+    if (!SDL_GetWindowPosition(window, &x, &y)) return result;
+    result.points[0] = (F32) x;
+    result.points[1] = (F32) y;
+
+    return result;
+}
 
 // extern SDL_DECLSPEC bool SDLCALL SDL_SetWindowSize(SDL_Window *window, int w, int h);
 DefineEngineFunction( SDL_SetWindowSize, bool, (S32 WindowID, S32 width, S32 height), ,"Set the Window Size") {
@@ -294,12 +305,80 @@ DefineEngineFunction(SDL_StopTextInput, bool, (S32 WindowID),, "STOP text input 
 
 
 // extern SDL_DECLSPEC bool SDLCALL SDL_GetWindowSize(SDL_Window *window, int *w, int *h);
-// extern SDL_DECLSPEC bool SDLCALL SDL_GetWindowSafeArea(SDL_Window *window, SDL_Rect *rect);
-// extern SDL_DECLSPEC bool SDLCALL SDL_SetWindowAspectRatio(SDL_Window *window, float min_aspect, float max_aspect);
-// extern SDL_DECLSPEC bool SDLCALL SDL_GetWindowAspectRatio(SDL_Window *window, float *min_aspect, float *max_aspect);
-// extern SDL_DECLSPEC bool SDLCALL SDL_GetWindowBordersSize(SDL_Window *window, int *top, int *left, int *bottom, int *right);
-// extern SDL_DECLSPEC bool SDLCALL SDL_GetWindowSizeInPixels(SDL_Window *window, int *w, int *h);
+DefineEngineFunction( SDL_GetWindowSize, ConsoleVector, (S32 WindowID), ,"Get the Window Size") {
+    ConsoleVector result = {};
+    SDL_Window* window  = WindowMap.getValue(WindowID);
+    if (!window) return result;
+    int w; int h;
+    if (!SDL_GetWindowSize(window, &w, &h)) return result;
+    result.points[0] = (F32) w;
+    result.points[1] = (F32) h;
 
+    return result;
+}
+
+// extern SDL_DECLSPEC bool SDLCALL SDL_GetWindowSafeArea(SDL_Window *window, SDL_Rect *rect);
+DefineEngineFunction( SDL_GetWindowSafeArea, ConsoleVector, (S32 WindowID), ,"") {
+    ConsoleVector result = {};
+    SDL_Window* window  = WindowMap.getValue(WindowID);
+    if (!window) return result;
+    SDL_Rect r;
+    if (!SDL_GetWindowSafeArea(window, &r)) return result;
+    result = toConsoleVector(r);
+
+    return result;
+}
+
+// extern SDL_DECLSPEC bool SDLCALL SDL_SetWindowAspectRatio(SDL_Window *window, float min_aspect, float max_aspect);
+DefineEngineFunction( SDL_SetWindowAspectRatio, bool, (S32 WindowID, F32 min, F32 max), ,"") {
+    SDL_Window* window  = WindowMap.getValue(WindowID);
+    if (!window) return "";
+
+    return SDL_SetWindowAspectRatio(window, min, max);
+}
+
+// extern SDL_DECLSPEC bool SDLCALL SDL_GetWindowAspectRatio(SDL_Window *window, float *min_aspect, float *max_aspect);
+DefineEngineFunction( SDL_GetWindowAspectRatio, ConsoleVector, (S32 WindowID), ,"") {
+    ConsoleVector result = {};
+    SDL_Window* window  = WindowMap.getValue(WindowID);
+    if (!window) return result;
+    float min,max;
+    if (!SDL_GetWindowAspectRatio(window, &min, &max)) return result;
+    result.points[0] = min;
+    result.points[1] = max;
+
+    return result;
+}
+
+
+// extern SDL_DECLSPEC bool SDLCALL SDL_GetWindowBordersSize(SDL_Window *window, int *top, int *left, int *bottom, int *right);
+DefineEngineFunction( SDL_GetWindowBordersSize, ConsoleVector, (S32 WindowID), ,"Get the Window border size: top, left, bottom, right") {
+    ConsoleVector result = {};
+    SDL_Window* window  = WindowMap.getValue(WindowID);
+    if (!window) return result;
+    int t,l,b,r;
+    if (!SDL_GetWindowBordersSize(window, &t, &l, &b, &r)) return result;
+    result.points[0] = (F32) t;
+    result.points[1] = (F32) l;
+    result.points[2] = (F32) b;
+    result.points[3] = (F32) r;
+
+    return result;
+}
+
+
+// extern SDL_DECLSPEC bool SDLCALL SDL_GetWindowSizeInPixels(SDL_Window *window, int *w, int *h);
+DefineEngineFunction( SDL_GetWindowSizeInPixels, ConsoleVector, (S32 WindowID), ,"Get the Window Size in pixels") {
+    ConsoleVector result = {};
+    SDL_Window* window  = WindowMap.getValue(WindowID);
+    if (!window) return result;
+    int w; int h;
+    if (!SDL_GetWindowSizeInPixels(window, &w, &h)) return result;
+    result.points[0] = (F32) w;
+    result.points[1] = (F32) h;
+
+    return result;
+}
 // extern SDL_DECLSPEC bool SDLCALL SDL_SetWindowMinimumSize(SDL_Window *window, int min_w, int min_h);
 DefineEngineFunction( SDL_SetWindowMinimumSize, bool, (S32 WindowID, S32 width, S32 height), ,"Set the Window minimum Size") {
     SDL_Window* window  = WindowMap.getValue(WindowID);
@@ -309,6 +388,17 @@ DefineEngineFunction( SDL_SetWindowMinimumSize, bool, (S32 WindowID, S32 width, 
 }
 
 // extern SDL_DECLSPEC bool SDLCALL SDL_GetWindowMinimumSize(SDL_Window *window, int *w, int *h);
+DefineEngineFunction( SDL_GetWindowMinimumSize, ConsoleVector, (S32 WindowID), ,"Get the Window minimum Size") {
+    ConsoleVector result = {};
+    SDL_Window* window  = WindowMap.getValue(WindowID);
+    if (!window) return result;
+    int w; int h;
+    if (!SDL_GetWindowMinimumSize(window, &w, &h)) return result;
+    result.points[0] = (F32) w;
+    result.points[1] = (F32) h;
+
+    return result;
+}
 
 // extern SDL_DECLSPEC bool SDLCALL SDL_SetWindowMaximumSize(SDL_Window *window, int max_w, int max_h);
 DefineEngineFunction( SDL_SetWindowMaximumSize, bool, (S32 WindowID, S32 width, S32 height), ,"Set the Window maximum Size") {
@@ -319,6 +409,17 @@ DefineEngineFunction( SDL_SetWindowMaximumSize, bool, (S32 WindowID, S32 width, 
 }
 
 // extern SDL_DECLSPEC bool SDLCALL SDL_GetWindowMaximumSize(SDL_Window *window, int *w, int *h);
+DefineEngineFunction( SDL_GetWindowMaximumSize, ConsoleVector, (S32 WindowID), ,"Get the Window maximum Size") {
+    ConsoleVector result = {};
+    SDL_Window* window  = WindowMap.getValue(WindowID);
+    if (!window) return result;
+    int w; int h;
+    if (!SDL_GetWindowMaximumSize(window, &w, &h)) return result;
+    result.points[0] = (F32) w;
+    result.points[1] = (F32) h;
+
+    return result;
+}
 
 // extern SDL_DECLSPEC bool SDLCALL SDL_SetWindowBordered(SDL_Window *window, bool bordered);
 DefineEngineFunction( SDL_SetWindowBordered, bool, (S32 WindowID, bool bordered), ,"Set bordered") {
@@ -338,14 +439,61 @@ DefineEngineFunction( SDL_SetWindowResizable, bool, (S32 WindowID, bool resizabl
 
 
 // extern SDL_DECLSPEC bool SDLCALL SDL_SetWindowAlwaysOnTop(SDL_Window *window, bool on_top);
-// extern SDL_DECLSPEC bool SDLCALL SDL_SetWindowFillDocument(SDL_Window *window, bool fill);
-// extern SDL_DECLSPEC bool SDLCALL SDL_ShowWindow(SDL_Window *window);
-// extern SDL_DECLSPEC bool SDLCALL SDL_HideWindow(SDL_Window *window);
-// extern SDL_DECLSPEC bool SDLCALL SDL_RaiseWindow(SDL_Window *window);
-// extern SDL_DECLSPEC bool SDLCALL SDL_MaximizeWindow(SDL_Window *window);
-// extern SDL_DECLSPEC bool SDLCALL SDL_MinimizeWindow(SDL_Window *window);
-// extern SDL_DECLSPEC bool SDLCALL SDL_RestoreWindow(SDL_Window *window);
+DefineEngineFunction( SDL_SetWindowAlwaysOnTop, bool, (S32 WindowID, bool value), ,"") {
+    SDL_Window* window  = WindowMap.getValue(WindowID);
+    if (!window) return "";
 
+    return SDL_SetWindowAlwaysOnTop(window, value);
+}
+// extern SDL_DECLSPEC bool SDLCALL SDL_SetWindowFillDocument(SDL_Window *window, bool fill);
+DefineEngineFunction( SDL_SetWindowFillDocument, bool, (S32 WindowID, bool value), ,"Emscripten only") {
+    SDL_Window* window  = WindowMap.getValue(WindowID);
+    if (!window) return "";
+
+    return SDL_SetWindowFillDocument(window, value);
+}
+// extern SDL_DECLSPEC bool SDLCALL SDL_ShowWindow(SDL_Window *window);
+DefineEngineFunction( SDL_ShowWindow, bool, (S32 WindowID), ,"") {
+    SDL_Window* window  = WindowMap.getValue(WindowID);
+    if (!window) return "";
+
+    return SDL_ShowWindow(window);
+}
+// extern SDL_DECLSPEC bool SDLCALL SDL_HideWindow(SDL_Window *window);
+DefineEngineFunction( SDL_HideWindow, bool, (S32 WindowID), ,"") {
+    SDL_Window* window  = WindowMap.getValue(WindowID);
+    if (!window) return "";
+
+    return SDL_HideWindow(window);
+}
+// extern SDL_DECLSPEC bool SDLCALL SDL_RaiseWindow(SDL_Window *window);
+DefineEngineFunction( SDL_RaiseWindow, bool, (S32 WindowID), ,"") {
+    SDL_Window* window  = WindowMap.getValue(WindowID);
+    if (!window) return "";
+
+    return SDL_RaiseWindow(window);
+}
+// extern SDL_DECLSPEC bool SDLCALL SDL_MaximizeWindow(SDL_Window *window);
+DefineEngineFunction( SDL_MaximizeWindow, bool, (S32 WindowID), ,"") {
+    SDL_Window* window  = WindowMap.getValue(WindowID);
+    if (!window) return "";
+
+    return SDL_MaximizeWindow(window);
+}
+// extern SDL_DECLSPEC bool SDLCALL SDL_MinimizeWindow(SDL_Window *window);
+DefineEngineFunction( SDL_MinimizeWindow, bool, (S32 WindowID), ,"") {
+    SDL_Window* window  = WindowMap.getValue(WindowID);
+    if (!window) return "";
+
+    return SDL_MinimizeWindow(window);
+}
+// extern SDL_DECLSPEC bool SDLCALL SDL_RestoreWindow(SDL_Window *window);
+DefineEngineFunction( SDL_RestoreWindow, bool, (S32 WindowID), ,"") {
+    SDL_Window* window  = WindowMap.getValue(WindowID);
+    if (!window) return "";
+
+    return SDL_RestoreWindow(window);
+}
 // extern SDL_DECLSPEC bool SDLCALL SDL_SetWindowFullscreen(SDL_Window *window, bool fullscreen);
 DefineEngineFunction( SDL_SetWindowFullscreen, bool, (S32 WindowID, bool fullscreen), ,"Set fullscreen") {
     SDL_Window* window  = WindowMap.getValue(WindowID);
@@ -354,6 +502,7 @@ DefineEngineFunction( SDL_SetWindowFullscreen, bool, (S32 WindowID, bool fullscr
     return SDL_SetWindowFullscreen(window, fullscreen);
 }
 
+// TODO:
 // extern SDL_DECLSPEC bool SDLCALL SDL_SyncWindow(SDL_Window *window);
 // extern SDL_DECLSPEC bool SDLCALL SDL_WindowHasSurface(SDL_Window *window);
 // extern SDL_DECLSPEC SDL_Surface * SDLCALL SDL_GetWindowSurface(SDL_Window *window);
@@ -430,7 +579,7 @@ DefineEngineFunction( SDL_CreateRenderer, S32, (S32 windowID, const char* name),
     return 0;
 }
 
-// FIXME >>>>>>
+// TODO >>>>>>
 // extern SDL_DECLSPEC SDL_Renderer * SDLCALL SDL_CreateRendererWithProperties(SDL_PropertiesID props);
 // extern SDL_DECLSPEC SDL_Renderer * SDLCALL SDL_CreateGPURenderer(SDL_GPUDevice *device, SDL_Window *window);
 // extern SDL_DECLSPEC SDL_GPUDevice * SDLCALL SDL_GetGPURendererDevice(SDL_Renderer *renderer);
@@ -490,7 +639,7 @@ DefineEngineFunction( SDL_CreateTextureFromSurface, S32,
 }
 
 
-
+// TODO:
 // extern SDL_DECLSPEC SDL_Texture * SDLCALL SDL_CreateTextureWithProperties(SDL_Renderer *renderer, SDL_PropertiesID props);
 // extern SDL_DECLSPEC SDL_PropertiesID SDLCALL SDL_GetTextureProperties(SDL_Texture *texture);
 // extern SDL_DECLSPEC SDL_Renderer * SDLCALL SDL_GetRendererFromTexture(SDL_Texture *texture);
@@ -517,7 +666,7 @@ DefineEngineFunction(SDL_GetTextureRect, /*RectF*/ ConsoleVector, (S32 textureID
     return result;
 }
 
-
+// TODO:
 // extern SDL_DECLSPEC bool SDLCALL SDL_SetTexturePalette(SDL_Texture *texture, SDL_Palette *palette);
 // extern SDL_DECLSPEC SDL_Palette * SDLCALL SDL_GetTexturePalette(SDL_Texture *texture);
 
@@ -530,7 +679,7 @@ DefineEngineFunction(SDL_SetTextureColorMod, bool, (S32 textureID, U8 r, U8 g, U
     return SDL_SetTextureColorMod(texture, r,g,b);
 }
 
-
+//TODO:
 // extern SDL_DECLSPEC bool SDLCALL SDL_SetTextureColorModFloat(SDL_Texture *texture, float r, float g, float b);
 // extern SDL_DECLSPEC bool SDLCALL SDL_GetTextureColorMod(SDL_Texture *texture, Uint8 *r, Uint8 *g, Uint8 *b);
 // extern SDL_DECLSPEC bool SDLCALL SDL_GetTextureColorModFloat(SDL_Texture *texture, float *r, float *g, float *b);
@@ -544,6 +693,7 @@ DefineEngineFunction(SDL_SetTextureAlphaMod, bool, (S32 textureID, U8 a),(255)
     return SDL_SetTextureAlphaMod(texture, a);
 }
 
+//TODO:
 // extern SDL_DECLSPEC bool SDLCALL SDL_SetTextureAlphaModFloat(SDL_Texture *texture, float alpha);
 // extern SDL_DECLSPEC bool SDLCALL SDL_GetTextureAlphaMod(SDL_Texture *texture, Uint8 *alpha);
 // extern SDL_DECLSPEC bool SDLCALL SDL_GetTextureAlphaModFloat(SDL_Texture *texture, float *alpha);
@@ -557,7 +707,7 @@ DefineEngineFunction(SDL_SetTextureBlendMode, bool, (S32 textureID, U32 blendMod
     return SDL_SetTextureBlendMode(texture, blendMode);
 }
 
-
+//TODO:
 // extern SDL_DECLSPEC bool SDLCALL SDL_GetTextureBlendMode(SDL_Texture *texture, SDL_BlendMode *blendMode);
 // extern SDL_DECLSPEC bool SDLCALL SDL_SetTextureScaleMode(SDL_Texture *texture, SDL_ScaleMode scaleMode);
 // extern SDL_DECLSPEC bool SDLCALL SDL_GetTextureScaleMode(SDL_Texture *texture, SDL_ScaleMode *scaleMode);
@@ -580,7 +730,7 @@ DefineEngineFunction(SDL_SetRenderLogicalPresentation, bool, (S32 RendererID,  S
             ,(SDL_RendererLogicalPresentation) mode);
 }
 
-
+//TODO:
 // extern SDL_DECLSPEC bool SDLCALL SDL_GetRenderLogicalPresentation(SDL_Renderer *renderer, int *w, int *h, SDL_RendererLogicalPresentation *mode);
 // extern SDL_DECLSPEC bool SDLCALL SDL_GetRenderLogicalPresentationRect(SDL_Renderer *renderer, SDL_FRect *rect);
 // extern SDL_DECLSPEC bool SDLCALL SDL_RenderCoordinatesFromWindow(SDL_Renderer *renderer, float window_x, float window_y, float *x, float *y);
@@ -605,7 +755,7 @@ DefineEngineFunction(SDL_SetRenderScale, bool , (S32 rendererID, F32 scaleX, F32
     return SDL_SetRenderScale(renderer, scaleX, scaleY);
 }
 
-
+//TODO:
 // extern SDL_DECLSPEC bool SDLCALL SDL_GetRenderScale(SDL_Renderer *renderer, float *scaleX, float *scaleY);
 
 // extern SDL_DECLSPEC bool SDLCALL SDL_SetRenderDrawColor(SDL_Renderer *renderer, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
@@ -617,6 +767,7 @@ DefineEngineFunction(SDL_SetRenderDrawColor, bool , (S32 rendererID, U8 r, U8 g,
     return SDL_SetRenderDrawColor(renderer, r,g,b,a);
 }
 
+// ElfScript
 DefineEngineFunction(SDL_SetRenderDrawColorVec, bool , (S32 rendererID, ConsoleVector colorVec),
 ,"set the render color") {
     SDL_Renderer* renderer = getRendererByID(rendererID);
@@ -631,11 +782,63 @@ DefineEngineFunction(SDL_SetRenderDrawColorVec, bool , (S32 rendererID, ConsoleV
     );
 }
 
+
 // extern SDL_DECLSPEC bool SDLCALL SDL_SetRenderDrawColorFloat(SDL_Renderer *renderer, float r, float g, float b, float a);
+DefineEngineFunction(SDL_SetRenderDrawColorFloat, bool , (S32 rendererID, F32 r, F32 g, F32 b, F32 a), (1.f)
+,"set the render color using float") {
+    SDL_Renderer* renderer = getRendererByID(rendererID);
+    if (!renderer) return false;
+
+    return SDL_SetRenderDrawColorFloat(renderer, r,g,b,a);
+}
+
 // extern SDL_DECLSPEC bool SDLCALL SDL_GetRenderDrawColor(SDL_Renderer *renderer, Uint8 *r, Uint8 *g, Uint8 *b, Uint8 *a);
+DefineEngineFunction(SDL_GetRenderDrawColor, ConsoleVector , (S32 rendererID),
+,"get the render color") {
+    ConsoleVector colorVec = {0};
+    SDL_Renderer* renderer = getRendererByID(rendererID);
+    if (!renderer) return colorVec;
+    U8 r,g,b,a;
+
+    if (!SDL_GetRenderDrawColor(renderer,&r, &g, &b, &a)) return colorVec;
+    colorVec.points[0] = (U8)r;
+    colorVec.points[1] = (U8)g;
+    colorVec.points[2] = (U8)b;
+    colorVec.points[3] = (U8)a;
+    return colorVec;
+}
+
 // extern SDL_DECLSPEC bool SDLCALL SDL_GetRenderDrawColorFloat(SDL_Renderer *renderer, float *r, float *g, float *b, float *a);
+DefineEngineFunction(SDL_GetRenderDrawColorFloat, ConsoleVector , (S32 rendererID),
+,"get the render color") {
+    ConsoleVector colorVec = {0};
+    SDL_Renderer* renderer = getRendererByID(rendererID);
+    if (!renderer) return colorVec;
+    float r,g,b,a;
+
+    if (!SDL_GetRenderDrawColorFloat(renderer,&r, &g, &b, &a)) return colorVec;
+    colorVec.points[0] = r;
+    colorVec.points[1] = g;
+    colorVec.points[2] = b;
+    colorVec.points[3] = a;
+    return colorVec;
+}
+
 // extern SDL_DECLSPEC bool SDLCALL SDL_SetRenderColorScale(SDL_Renderer *renderer, float scale);
+DefineEngineFunction(SDL_SetRenderColorScale,  bool , (S32 rendererID,F32 scale),,"") {
+    SDL_Renderer* renderer = getRendererByID(rendererID);
+    if (!renderer) return false;
+    return SDL_SetRenderColorScale(renderer, scale);
+}
+
 // extern SDL_DECLSPEC bool SDLCALL SDL_GetRenderColorScale(SDL_Renderer *renderer, float *scale);
+DefineEngineFunction(SDL_GetRenderColorScale,  F32 , (S32 rendererID),,"") {
+    SDL_Renderer* renderer = getRendererByID(rendererID);
+    if (!renderer) return false;
+    F32 scale = 0.f;
+    if (!SDL_GetRenderColorScale(renderer, &scale)) return 0.f;
+    return scale;
+}
 
 // extern SDL_DECLSPEC bool SDLCALL SDL_SetRenderDrawBlendMode(SDL_Renderer *renderer, SDL_BlendMode blendMode);
 DefineEngineFunction(SDL_SetRenderDrawBlendMode, bool , (S32 rendererID,U32 blendMode), (SDL_BLENDMODE_NONE)
@@ -647,8 +850,15 @@ DefineEngineFunction(SDL_SetRenderDrawBlendMode, bool , (S32 rendererID,U32 blen
 }
 
 
-
 // extern SDL_DECLSPEC bool SDLCALL SDL_GetRenderDrawBlendMode(SDL_Renderer *renderer, SDL_BlendMode *blendMode);
+DefineEngineFunction(SDL_GetRenderDrawBlendMode, U32 , (S32 rendererID),
+,"get the blendmode return U32_MAX if failed") {
+    SDL_Renderer* renderer = getRendererByID(rendererID);
+    if (!renderer) return false;
+    U32 blendMode = 0;
+    if (!SDL_GetRenderDrawBlendMode(renderer, &blendMode)) return U32_MAX;
+    return blendMode;
+}
 
 // extern SDL_DECLSPEC bool SDLCALL SDL_RenderClear(SDL_Renderer *renderer);
 DefineEngineFunction(SDL_RenderClear, bool , (S32 rendererID),
@@ -671,6 +881,28 @@ DefineEngineFunction(SDL_RenderPoint, bool , (S32 rendererID, F32 x, F32 y),
 }
 
 // extern SDL_DECLSPEC bool SDLCALL SDL_RenderPoints(SDL_Renderer *renderer, const SDL_FPoint *points, int count);
+#ifdef ENABLE_CONSOLE_VECTOR
+DefineEngineFunction(SDL_RenderPoints, bool , (S32 rendererID, Array* pointsArray),
+        ,"render points from an Array of TypeVector (non TypeVector will be skipped!)\n"
+         "no that fast, since we need to fill the points every call."
+) {
+    SDL_Renderer* renderer = getRendererByID(rendererID);
+    if (!renderer || !pointsArray || pointsArray->mValues.size() == 0) return false;
+    Vector<SDL_FPoint> points;
+    S32 count = pointsArray->mValues.size();
+    S32 realCount = 0;
+    points.reserve(count);
+    for (U32 i = 0; i < count; i++) {
+        ConsoleValue* value = &pointsArray->mValues[i];
+        if (value->type != ConsoleValueType::cvVector) continue;
+        points[realCount] = {value->v.points[0], value->v.points[1]};
+        realCount ++;
+    }
+
+    return SDL_RenderPoints(renderer,points.address(), realCount);
+}
+#endif
+
 
 
 // extern SDL_DECLSPEC bool SDLCALL SDL_RenderLine(SDL_Renderer *renderer, float x1, float y1, float x2, float y2);
@@ -682,8 +914,38 @@ DefineEngineFunction(SDL_RenderLine, bool , (S32 rendererID, F32 x1, F32 y1, F32
     return SDL_RenderLine(renderer, x1, y1, x2, y2);
 }
 
+// ElfScript
+DefineEngineFunction(SDL_RenderLineRect, bool , (S32 rendererID, RectF pointsRect),
+        ,"render a Line where (w)idth == x2 and (h)eight == y2") {
+    SDL_Renderer* renderer = getRendererByID(rendererID);
+    if (!renderer) return false;
 
+    return SDL_RenderLine(renderer, pointsRect.x, pointsRect.y, pointsRect.w, pointsRect.h);
+}
 // extern SDL_DECLSPEC bool SDLCALL SDL_RenderLines(SDL_Renderer *renderer, const SDL_FPoint *points, int count);
+#ifdef ENABLE_CONSOLE_VECTOR
+DefineEngineFunction(SDL_RenderLines, bool , (S32 rendererID, Array* pointsArray),
+                     ,"render points from an Array of TypeVector (non TypeVector will be skipped!)\n"
+                     "no that fast, since we need to fill the points every call."
+) {
+    SDL_Renderer* renderer = getRendererByID(rendererID);
+    if (!renderer || !pointsArray || pointsArray->mValues.size() == 0) return false;
+    Vector<SDL_FPoint> points;
+    S32 count = pointsArray->mValues.size();
+    S32 realCount = 0;
+    points.reserve(count);
+    for (U32 i = 0; i < count; i++) {
+        ConsoleValue* value = &pointsArray->mValues[i];
+        if (value->type != ConsoleValueType::cvVector) continue;
+        points[realCount] = {value->v.points[0], value->v.points[1]};
+        realCount ++;
+    }
+
+    return SDL_RenderLines(renderer,points.address(), realCount);
+}
+#endif
+
+
 
 // extern SDL_DECLSPEC bool SDLCALL SDL_RenderRect(SDL_Renderer *renderer, const SDL_FRect *rect);
 DefineEngineFunction(SDL_RenderRect, bool , (S32 rendererID, RectF rect),
@@ -695,6 +957,27 @@ DefineEngineFunction(SDL_RenderRect, bool , (S32 rendererID, RectF rect),
 }
 
 // extern SDL_DECLSPEC bool SDLCALL SDL_RenderRects(SDL_Renderer *renderer, const SDL_FRect *rects, int count);
+#ifdef ENABLE_CONSOLE_VECTOR
+DefineEngineFunction(SDL_RenderRects, bool , (S32 rendererID, Array* pointsArray),
+                     ,"render points from an Array of TypeVector (non TypeVector will be skipped!)\n"
+                     "no that fast, since we need to fill the points every call."
+) {
+    SDL_Renderer* renderer = getRendererByID(rendererID);
+    if (!renderer || !pointsArray || pointsArray->mValues.size() == 0) return false;
+    Vector<SDL_FRect> points;
+    S32 count = pointsArray->mValues.size();
+    S32 realCount = 0;
+    points.reserve(count);
+    for (U32 i = 0; i < count; i++) {
+        ConsoleValue* value = &pointsArray->mValues[i];
+        if (value->type != ConsoleValueType::cvVector) continue;
+        points[realCount] = toRectF(value->v);
+        realCount ++;
+    }
+
+    return SDL_RenderRects(renderer,points.address(), realCount);
+}
+#endif
 
 // extern SDL_DECLSPEC bool SDLCALL SDL_RenderFillRect(SDL_Renderer *renderer, const SDL_FRect *rect);
 DefineEngineFunction(SDL_RenderFillRect, bool , (S32 rendererID, RectF rect),
@@ -716,6 +999,28 @@ DefineEngineFunction(SDL_RenderRectF, bool , (S32 rendererID, F32 x, F32 y, F32 
      return SDL_RenderRect(renderer, &rect);
 }
 // extern SDL_DECLSPEC bool SDLCALL SDL_RenderFillRects(SDL_Renderer *renderer, const SDL_FRect *rects, int count);
+#ifdef ENABLE_CONSOLE_VECTOR
+DefineEngineFunction(SDL_RenderFillRects, bool , (S32 rendererID, Array* pointsArray),
+                     ,"render points from an Array of TypeVector (non TypeVector will be skipped!)\n"
+                     "no that fast, since we need to fill the points every call."
+) {
+    SDL_Renderer* renderer = getRendererByID(rendererID);
+    if (!renderer || !pointsArray || pointsArray->mValues.size() == 0) return false;
+    Vector<SDL_FRect> points;
+    S32 count = pointsArray->mValues.size();
+    S32 realCount = 0;
+    points.reserve(count);
+    for (U32 i = 0; i < count; i++) {
+        ConsoleValue* value = &pointsArray->mValues[i];
+        if (value->type != ConsoleValueType::cvVector) continue;
+        points[realCount] = toRectF(value->v);
+        realCount ++;
+    }
+
+    return SDL_RenderFillRects(renderer,points.address(), realCount);
+}
+#endif
+
 
 // extern SDL_DECLSPEC bool SDLCALL SDL_RenderTexture(SDL_Renderer *renderer, SDL_Texture *texture,
 //                      const SDL_FRect *srcrect, const SDL_FRect *dstrect);
@@ -750,7 +1055,7 @@ DefineEngineFunction(SDL_RenderTextureRotated, bool ,
 }
 
 
-
+//TODO:
 // extern SDL_DECLSPEC bool SDLCALL SDL_RenderTextureAffine(SDL_Renderer *renderer, SDL_Texture *texture,
 // extern SDL_DECLSPEC bool SDLCALL SDL_RenderTextureTiled(SDL_Renderer *renderer, SDL_Texture *texture, const SDL_FRect *srcrect, float scale, const SDL_FRect *dstrect);
 // extern SDL_DECLSPEC bool SDLCALL SDL_RenderTexture9Grid(SDL_Renderer *renderer, SDL_Texture *texture, const SDL_FRect *srcrect, float left_width, float right_width, float top_height, float bottom_height, float scale, const SDL_FRect *dstrect);
@@ -783,7 +1088,7 @@ DefineEngineFunction(SDL_DestroyRenderer, bool , (S32 rendererID),
     return RendererMap.remove(rendererID);
 }
 
-
+//TODO:
 // extern SDL_DECLSPEC bool SDLCALL SDL_FlushRenderer(SDL_Renderer *renderer);
 // extern SDL_DECLSPEC void * SDLCALL SDL_GetRenderMetalLayer(SDL_Renderer *renderer);
 // extern SDL_DECLSPEC void * SDLCALL SDL_GetRenderMetalCommandEncoder(SDL_Renderer *renderer);
@@ -817,7 +1122,7 @@ DefineEngineFunction(SDL_RenderDebugText, bool , (S32 rendererID, F32 x, F32 y, 
     return SDL_RenderDebugText(renderer, x, y, str);
 }
 
-
+//TODO:
 // extern SDL_DECLSPEC bool SDLCALL SDL_RenderDebugTextFormat(SDL_Renderer *renderer, float x, float y, SDL_PRINTF_FORMAT_STRING const char *fmt, ...) SDL_PRINTF_VARARG_FUNC(4);
 // extern SDL_DECLSPEC bool SDLCALL SDL_SetDefaultTextureScaleMode(SDL_Renderer *renderer, SDL_ScaleMode scale_mode);
 // extern SDL_DECLSPEC bool SDLCALL SDL_GetDefaultTextureScaleMode(SDL_Renderer *renderer, SDL_ScaleMode *scale_mode);

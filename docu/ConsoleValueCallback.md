@@ -137,6 +137,16 @@ void Namespace::addCommand(StringTableEntry name, ConsoleValueCallback cb, const
 
 ```
 #ifdef ENABLE_CONSOLE_VALUE_CALLBACK
+inline ConsoleValue _EngineConsoleThunkReturnValue( ConsoleValue value )
+{
+      return value;
+}
+
+#endif
+```
+
+<!-- ``` -->
+#ifdef ENABLE_CONSOLE_VALUE_CALLBACK
 template<>
 struct _EngineConsoleThunkType< ConsoleValue >
 {
@@ -146,9 +156,6 @@ struct _EngineConsoleThunkType< ConsoleValue >
 #endif
 ```
 
-```
-
-```
 
 
 
@@ -185,6 +192,8 @@ struct Entry
 - [X] TEST clean when disabled ENABLE_CONSOLE_VALUE_CALLBACK
       $foo = new ValueVector(); $foo.push_back(47.22); echo($foo.get(0));    
 
-- [ ] FIX ENABLE_CONSOLE_VALUE_CALLBACK
+- [X] FIX ENABLE_CONSOLE_VALUE_CALLBACK
 
 /opt/ElfScript/CrazyElf/../ElfScript/console/engineAPI.h:662:44: error: could not convert ‘_EngineConsoleThunkReturnValue<ConsoleValue>(engineAPI::detail::ThunkHelpers<2, ConsoleValue, int>::dispatchHelper<_ValueVectorgetframe, 0>(argc, argv, fn, frame, (* & defaultArgs), (_EngineConsoleThunk<2, ConsoleValue(int)>::SeqType(), _EngineConsoleThunk<2, ConsoleValue(int)>::SeqType())))’ from ‘const char*’ to ‘_EngineConsoleThunk<2, ConsoleValue(int)>::ReturnType’ {aka ‘ConsoleValue’}
+
+=> missing _EngineConsoleThunkReturnValue in engineAPI

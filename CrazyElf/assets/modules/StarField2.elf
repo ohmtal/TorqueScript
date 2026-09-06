@@ -6,7 +6,7 @@
 // -----------------------------------------------------------------------------
 
 // orig 420
-#define STAR_COUNT 420
+#define STAR_COUNT 4200
 #define START_DIV 0.03125
 
 function createStarField2() {
@@ -122,8 +122,8 @@ function StarField::Render(%this) {
         else
         {
             %radius = math.Lerp(2.0, 0.3, %lStarPoints.z);
-            SDL_RenderRectF(%renderer, %screenPos_X, %screenPos_Y, %radius,%radius, true);
-            // SDL_RenderFillRect(%renderer, { %screenPos_X, %screenPos_Y, %radius,%radius});
+            // SDL_RenderRectF(%renderer, %screenPos_X, %screenPos_Y, %radius,%radius, true);
+            SDL_RenderFillRect(%renderer, { %screenPos_X, %screenPos_Y, %radius,%radius});
         }
 
         %lStarPoints.storePoint(%i);
