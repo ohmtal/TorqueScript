@@ -1,0 +1,33 @@
+Bug report Torque3D (2026-07-09)
+
+**Describe the bug**
+When working on ElfScript i found out, that using a component field attached to a function call does not work. I checked the current Torque3D source and I'm sure there is the same behavior. Was not able to test it, because the  current Torque3D does not build on Linux (assimp/code/Common/ZipArchiveIOSystem.cpp:57:14: fatal error: unzip.h: No such file or directory)
+
+
+**To Reproduce**
+```
+function foo() { return "1 2 3"; }
+echo(foo().x); // should return 1 but is empty
+```
+```
+$obj = new ScriptObject() { class = "TestClass"; };
+function  TestClass::foo() { return "1 2 3"; }
+echo($obj.foo().x); // return the object ID ($obj) not 1
+```
+
+If both are working fine on Torque3D forget this post ;)
+
+**Expected behavior**
+Also function calls with component should return the correct value.
+
+**Screenshots**
+- not available -
+
+**System Info (please complete the following information as applicable):**
+ - OS: [Arch Linux]
+ - Engine Version [current  from  github repo]
+
+**Additional context**
+As i said, i can't test it with Torque3D and did only read the Sources. My fix in ElfScript was:
+1.)  At the end of  OP_CALLFUNC i did set the   `Script::gEvalState.currentVariable = nullptr;`
+2.) in getFieldComponent i use the current stack as result stack , but this require, that getFieldComponent know the current stack string - i looked at old sources - this was the default fallback when no obj and field are there
