@@ -1,7 +1,7 @@
 # ElfScript Simple Speed Test:
 
 
-## Goal: get the (nearly or better) speed as lua (without jit) on "localvar test"
+## Goal: get the (close to or better) speed as lua (vanilla - without jit) on "localvar test"
 - Lua 5.5.1: 1.243u 0.002s 0:01.25 99.2%     0+0k 0+0io 0pf+0w
 - Elfscript 0.7c very close : **1.354u** 0.002s 0:01.36 99.2%     0+0k 0+0io 0pf+0w
 - Elfscript 0.6f close to lua but still about 200ms:  **1.434u** 0.006s 0:01.45 98.6%     0+0k 0+0io 0pf+0w
@@ -11,6 +11,14 @@
 
 
 ## Version 0.7g - stability tests for first release - 
+ - Added Array object. A flat array holding ConsoleValues - This is now my universal
+ Swiss Army Knife :D ! I added a constructor in lexer to do `%foo = [1,2,3];` with the 
+ limitation: I can not add ConsoleVector's in this constructor. But `%foo.push_back({1,2,3,4});` 
+ works fine. I removed my new explodeToObject function and added fromString method to Array which makes more 
+ sense. With this Object I was able to implement bindings like SDL_RenderPoints without fallback
+ to String - which make the call useless. This is now a easy to use alternaive to PointStorageObject.
+ While PointStorageObject is still a very fast way to work with a lot of Points/Rects/Colors .. everything
+ requires a lot of 2..4 float/integer values. 
  - Implemented direct handling getter/setter for ConsoleValue (used by ValueVector)
  - Added **Neural Network** bindings using genann - demo added to CrazyElf.
  - SDL3 got a **"melody maker"** - demo added to CrazyElf.
