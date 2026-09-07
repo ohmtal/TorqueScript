@@ -1,0 +1,74 @@
+#define MODE_POINTS 0
+#define MODE_LINES  1
+#define MODE_RECT   2
+#define MODE_FILLRECT   3
+
+
+function createsdlTests(%renderer, %window) {
+    %obj = new Group() {
+        class = "sdlTests";
+        TypeS32 renderer = %renderer;
+        TypeS32 window   = %window;
+
+        TypeU32 mode     = MODE_POINTS;
+    };
+
+    return %obj;
+}
+//----------------------------------------------------------------------
+function sdlTests::onAdd(%this) {
+
+    %this.add( %this.pointsArray = new Array());
+
+    for(%i in range 1000)
+    {
+        %v =  {
+                 math.randomf(0.0, $Global::ScreenSize.x)
+                ,math.randomf(0.0, $Global::ScreenSize.y)
+                ,math.randomf(5.0,30.0) // width
+                ,math.randomf(5.0,30.0) // height
+            };
+        %this.pointsArray.push_back(%v);
+    }
+
+
+    return true;
+}
+//----------------------------------------------------------------------
+function sdlTests::OnRemove(%this) { }
+//----------------------------------------------------------------------
+function sdlTests::Render(%this) {
+    if (!%this.renderer) return;
+    SDL_SetRenderDrawColor(%this.renderer, 20, 20, 20);
+    SDL_RenderClear(%this.renderer);
+
+    SDL_SetRenderDrawColor(%this.renderer, 20, 20, 200);
+    switch (%this.mode) {
+        case MODE_POINTS   : SDL_RenderPoints(%this.renderer, %this.pointsArray);
+        case MODE_LINES    : SDL_RenderLines(%this.renderer, %this.pointsArray);
+        case MODE_RECT     : SDL_RenderRects(%this.renderer, %this.pointsArray);
+        case MODE_FILLRECT : SDL_RenderFillRects(%this.renderer, %this.pointsArray);
+    }
+
+
+    SDL_SetRenderDrawColor(%this.renderer, 55,155,155);
+    SDL_RenderDebugText(%this.renderer, 10, 10, " SDL Tests " SPC $Global::FPS);
+    SDL_RenderDebugText(%this.renderer, 10, 25, " F-Keys change mode " SPC %this.mode);
+}
+//----------------------------------------------------------------------
+function  sdlTests::onSDLKeyBoardEvent(%this,%scancode, %modifiers, %isDown, %isRepeat) {
+    // vardump("%scancode"); vardump("%isDown");
+
+    if (%isDown) {
+        switch (%scancode) {
+            case SDL_SCANCODE_F1 : %this.mode = MODE_POINTS;
+            case SDL_SCANCODE_F2 : %this.mode = MODE_LINES;
+            case SDL_SCANCODE_F3 : %this.mode = MODE_RECT;
+            case SDL_SCANCODE_F4 : %this.mode = MODE_FILLRECT;
+        }
+    }
+}
+function  sdlTests::onSDLMouseButtonEvent(%this,%button, %isDown, %x, %y) {}
+function  sdlTests::onSDLMouseWheelEvent(%this,%wheelX, %wheelY){}
+
+
