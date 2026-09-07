@@ -72,6 +72,8 @@ Located in Folder [CrazyElf](./CrazyElf):
 ## Notable changes:
 
 Based on the Torque3D (4.x) source code this is my version of TorqueScript without Torque3D. 
+
+- **ElfScript 0.7:** added an Array object which can be used in script with this constuctor: `%arr = [ 1 , 2 ,3 ];`. It's methods names are loosly follow the naming of std::vector methods.
 - **ElfScript 0.7:** lexer/vm direct implemented math.* (math.randomf/math.sin/...) and print/printf/sprintf commands 
 - **ElfScript 0.7:** lexer is not longer case sensitive so you can use: for (%i IN Range 10) instead of everthing is lowercase
 - **ElfScript 0.6:** altered ConsoleValue. it's now  16 byte or 32 byte if ConsoleVector is enabled (on TODO list). Allocated Strings are removed for good.
