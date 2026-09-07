@@ -48,7 +48,7 @@ Common Types are:
 
 - TypeS64 for integer
 - TypeF64 for float 
-- TypeVecor for an 4 point vector
+- TypeVector for an 4 point vector
 
 if you set nothing it's set as string. 
 
@@ -77,16 +77,14 @@ using BaseElf.
 You can also use `$posObj.setFieldType("m0", "TypeF64");` but then the field
 m0 must exists. Example: `$posObj.m0=0; $posObj.setFieldType("m0", "TypeF64");`.
 
-## foreach
-
-foreach is faster than while or for. 
+## foreach / for in Range
 
 Foreach on SimSets, Arrays or Strings: 
 
 ```
     // dummy simgroup : 
     %mySimGroup  = new SimSet();
-    foreach (%i in range 0..5) %mySimGroup.add( new SimObject());
+    foreach (%i in range 5) %mySimGroup.add( new SimObject());
 
     // for "slow" style
     %count = %mySimGroup.getCount();
@@ -125,9 +123,9 @@ foreach on integer:
         echo("i is: ", %i);
     }
 
-    // fast foreach:
+    // fast foreach or for:
     foreach (%i in range 0..5)  echo("foreach: i is: ", %i);
-    foreach (%i in range 5)  echo("foreach: i is: ", %i);
+    for (%i in range 5)  echo("for range: i is: ", %i);
     
 ```
 
