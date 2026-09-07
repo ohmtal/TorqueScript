@@ -108,11 +108,11 @@ struct IterStackRecord
    struct RangePos
    {
       S32  mStart; // first number (included)
-      S32  mEnd;  // last number (included)
+      // only used at init so removed. - 4 byted ;) ... S32  mEnd;  // last number (included)
       S32  mInc;  // -1, +1 maybe we can add STEP :)
       S32  mStop; //we stop at ...
-      bool isPositive; // 4 bytes NOTE can be chaged to U32 flags
-   }; // 20bytes
+      // replaced by OPCODE rewriting ! bool isPositive; // 4 bytes NOTE can be chaged to U32 flags
+   }; // now 12 bytes like the other 2 :)
 
    union
    {
@@ -305,6 +305,28 @@ static void stackFieldComponent(SimObject* object, StringTableEntry field, const
       ConsoleValue* srcValue = nullptr;
       // Local Variable
 
+      // NOTE: this fail when adding a component to a function call
+      // - does work on OGE (based on old Torque2D) and OGE3D (based on 3.1x)
+      // - could not test it with Torque3D (compile errors on linux - no mood to fix it)
+      //    but code looks equal so i guess it will also fail!
+      // Problem description
+      // 1. from function only
+      // function foo() { return {1,2,3}; }
+      // echo(foo().x); // return "" because it's not able to find a source stack - this could be fixed ?!
+      //
+      // 2. from a method call - but now it get's worse
+      // echo($arr.at(19).y); // contains [type:  Vector] [value:   0 0.113206558 0 0]
+      // // the value is set in the stackP ...
+      // // my srcValue look up find the currentVariable $arr and try to get the component
+      // // from this object id ....
+      // NOTE TEST XXTH_DEBUG <<
+      // FIX - HOPE I DO NOT BREAK ANYTHING
+      // 1. OP_CALLFUNC before DISPATCH a set the Script::gEvalState.currentVariable to nullptr
+      // 2. stackFieldComponent << when no srcValue is found i set srcValue=pStack ...
+      // This works ... but does it break something ?!!!??!?!?!
+
+
+
       if (object && field) {
 #ifdef ENABLE_CONSOLE_VECTOR
             srcStoreValue.type = ConsoleValueType::cvVector;
@@ -321,10 +343,13 @@ static void stackFieldComponent(SimObject* object, StringTableEntry field, const
       }
 
       // no srcValue empty target pStack
-      if (!srcValue) {
-            pStack->setEmptyString();
-            return;
-      }
+      //NOTE TEST XXTH_TEST component bug
+      // // if (!srcValue) {
+      // //       pStack->setEmptyString();
+      // //       return;
+      // // }
+      if (!srcValue) srcValue = pStack;
+
 
 
       S32 componentIndex = getComponentIndex(subField);
@@ -1401,6 +1426,7 @@ Con::EvalResult CodeBlock::exec(U32 ip, const char* functionName, Namespace* thi
          &&handle_OP_ITER_SIMOBJECT,
          &&handle_OP_ITER_ARRAY,
          &&handle_OP_ITER_FOR_INT,
+         &&handle_OP_ITER_FOR_INT_NEG,
          &&handle_OP_ITER_FOR_INT_RANGE,
          &&handle_OP_ITER_FOR_INT_RANGE_NEG,
 
@@ -2953,6 +2979,7 @@ handle_OP_LOADIMMED_IDENT:
 // ~~~~~~~~~~~~~~~~~ CALLFUNC
 handle_OP_CALLFUNC:
 {
+
       // This routingId is set when we query the object as to whether
       // it handles this method.  It is set to an enum from the table
       // above indicating whether it handles it on a component it owns
@@ -3220,6 +3247,11 @@ handle_OP_CALLFUNC:
                   } // switch (nsEntry->mType)
             }
       }
+
+      //NOTE: TEST XXTH_TEST EXPERIMENTAL !!! reset global var to prevent component bug!
+      // echo($arr.at(0).x);  ==>  use $arr as variable - bad idea
+      Script::gEvalState.currentVariable = nullptr;
+
       DISPATCH();
 } //OP_CALLFUNC
 
@@ -3417,21 +3449,29 @@ handle_OP_ITER_BEGIN:
                   TORQUE_CASE_FALLTHROUGH;
             case 2: // Range a..b
             {
-                  iter.mData.mRange.mEnd   = stack[_STK].getInt();
+                  // iter.mData.mRange.mEnd   = stack[_STK].getInt();
+                  S32 end   = stack[_STK].getInt();
                   POP_STK(); //pop the param
                   iter.mData.mRange.mStart = stack[_STK].getInt();
 
-                  if (iter.mData.mRange.mStart > iter.mData.mRange.mEnd) iter.mData.mRange.mInc = -1;
+                  if (iter.mData.mRange.mStart > end) iter.mData.mRange.mInc = -1;
                   else iter.mData.mRange.mInc = 1;
                   if ( mode == 102 ) {
-                        iter.mData.mRange.mStop = iter.mData.mRange.mEnd;
+                        iter.mData.mRange.mStop = end;
                   } else {
-                        iter.mData.mRange.mStop = iter.mData.mRange.mEnd + iter.mData.mRange.mInc;
+                        iter.mData.mRange.mStop = end + iter.mData.mRange.mInc;
 
                   }
 
                   iter.mConsoleValue->setInt(0);
-                  iter.mData.mRange.isPositive = iter.mData.mRange.mInc > 0;
+
+                  bool isPositive = iter.mData.mRange.mInc > 0;
+
+                  if (isPositive)
+                        code[loopOpcodeIp] = OP_ITER_FOR_INT;
+                  else
+                        code[loopOpcodeIp] = OP_ITER_FOR_INT_NEG;
+
             }
             break;
 
@@ -3441,18 +3481,17 @@ handle_OP_ITER_BEGIN:
             {
                   iter.mData.mRange.mInc   = stack[_STK].getInt();
                   POP_STK();
-                  iter.mData.mRange.mEnd   = stack[_STK].getInt();
+                  S32 end  = stack[_STK].getInt();
                   POP_STK();
                   iter.mData.mRange.mStart = stack[_STK].getInt();
 
                   // validate correct step
-                  int start = iter.mData.mRange.mStart;
-                  int end   = iter.mData.mRange.mEnd;
-                  int inc   = iter.mData.mRange.mInc;
+                  S32 start = iter.mData.mRange.mStart;
+                  S32 inc   = iter.mData.mRange.mInc;
 
                   if ((inc == 0) || (start < end && inc < 0) || (start > end && inc > 0)) {
                         Con::errorf("Runtime Error: Foreach invalid step supplied! %d .. %d step: %d",
-                                    iter.mData.mRange.mStart, iter.mData.mRange.mEnd
+                                    iter.mData.mRange.mStart, end
                                     , iter.mData.mRange.mInc);
 
                         ip = failIp;
@@ -3469,29 +3508,39 @@ handle_OP_ITER_BEGIN:
                   }
 
                   iter.mConsoleValue->setInt(0);
-                  iter.mData.mRange.isPositive = iter.mData.mRange.mInc > 0;
+                  bool isPositive = iter.mData.mRange.mInc > 0;
+
+                  if (isPositive)
+                        code[loopOpcodeIp] = OP_ITER_FOR_INT;
+                  else
+                        code[loopOpcodeIp] = OP_ITER_FOR_INT_NEG;
             }
             break;
 
             case 4: //for i in range -10 only one parameter . does 0..-9 ==> OP_ITER_FOR_INT_RANGE_NEG
             {
-                  iter.mData.mRange.mEnd   = stack[_STK].getInt() * - 1;
+                  // iter.mData.mRange.mEnd   = stack[_STK].getInt() * - 1;
+                  S32 end = stack[_STK].getInt() * - 1;
                   iter.mData.mRange.mStart = 0;
 
                   iter.mData.mRange.mInc = -1;
-                  iter.mData.mRange.mStop = iter.mData.mRange.mEnd;
+                  iter.mData.mRange.mStop = end;
                   iter.mConsoleValue->setInt(0);
-                  iter.mData.mRange.isPositive = false;
+                  // // iter.mData.mRange.isPositive = false;
+                  code[loopOpcodeIp] = OP_ITER_FOR_INT_NEG;
+
             }
             break;
             case 104: //for i in range 10 only one parameter . does 0..9 == OP_ITER_FOR_INT_RANGE
             {
-                  iter.mData.mRange.mEnd   = stack[_STK].getInt();
+                  // iter.mData.mRange.mEnd   = stack[_STK].getInt();
+                  S32 end   = stack[_STK].getInt();
                   iter.mData.mRange.mStart = 0;
                   iter.mData.mRange.mInc = 1;
-                  iter.mData.mRange.mStop = iter.mData.mRange.mEnd;
+                  iter.mData.mRange.mStop = end;
                   iter.mConsoleValue->setInt(0);
-                  iter.mData.mRange.isPositive = true;
+                  // // iter.mData.mRange.isPositive = true;
+                  code[loopOpcodeIp] = OP_ITER_FOR_INT;
             }
             break;
 
@@ -3522,27 +3571,6 @@ handle_OP_ITER_BEGIN:
                         iter.mConsoleValue->setInt(0);
                   }
 
-
-
-                  // // SimSet* set;
-                  // // if (!Sim::findObject(stack[_STK].getString(), set))
-                  // // {
-                  // //       Con::errorf(ConsoleLogEntry::General, "No SimSet object '%s'", stack[_STK].getString());
-                  // //       Con::errorf(ConsoleLogEntry::General, "Did you mean to use 'foreach$' instead of 'foreach'?");
-                  // //       ip = failIp;
-                  // //       // Pop the iterated value
-                  // //       POP_STK();
-                  // //       DISPATCH(); // continue;
-                  // // }
-                  // //
-                  // //
-                  // // // Set up.
-                  // //
-                  // // // iter.mData.mObj.mSet = set;
-                  // // iter.mData.mObj.mObjPtr = set;
-                  // // iter.mData.mObj.mIndex = 0;
-                  // //
-                  // // iter.mConsoleValue->setInt(0);
 
             }
             break;
@@ -3655,36 +3683,39 @@ handle_OP_ITER_FOR_INT:
 {
      U32 breakIp = code[ip];
      IterStackRecord& iter = iterStack[_ITER - 1];
-     if ( iter.mData.mRange.isPositive)
-     {
-            S32 needle = iter.mData.mRange.mStart;
-            S32 stop   = iter.mData.mRange.mStop;
 
-            if (needle >= stop) {
-                  ip = breakIp;
-                  DISPATCH();
-            }
-            iter.mConsoleValue->i = needle;
-            iter.mData.mRange.mStart = needle + iter.mData.mRange.mInc;
+      S32 needle = iter.mData.mRange.mStart;
+      S32 stop   = iter.mData.mRange.mStop;
 
-            ++ip;
-            DISPATCH(); // fettisch
+      if (needle >= stop) {
+            ip = breakIp;
+            DISPATCH();
       }
-      else
-      {
-            S32 needle = iter.mData.mRange.mStart;
-            S32 stop   = iter.mData.mRange.mStop;
+      iter.mConsoleValue->i = needle;
+      iter.mData.mRange.mStart = needle + iter.mData.mRange.mInc;
 
-            if (needle <= stop) {
-                  ip = breakIp;
-                  DISPATCH();
-            }
-            iter.mConsoleValue->i = needle;
-            iter.mData.mRange.mStart = needle + iter.mData.mRange.mInc;
+      ++ip;
+      DISPATCH(); // fettisch
 
-            ++ip;
-            DISPATCH(); // fettisch
+}
+
+handle_OP_ITER_FOR_INT_NEG:
+{
+      U32 breakIp = code[ip];
+      IterStackRecord& iter = iterStack[_ITER - 1];
+
+      S32 needle = iter.mData.mRange.mStart;
+      S32 stop   = iter.mData.mRange.mStop;
+
+      if (needle <= stop) {
+            ip = breakIp;
+            DISPATCH();
       }
+      iter.mConsoleValue->i = needle;
+      iter.mData.mRange.mStart = needle + iter.mData.mRange.mInc;
+
+      ++ip;
+      DISPATCH(); // fettisch
 
 }
 

@@ -162,12 +162,13 @@ namespace Compiler
       OP_ASSERT,
       OP_BREAK,
 
-      OP_ITER_BEGIN,       ///< Prepare foreach iterator.
+      OP_ITER_BEGIN,       ///< Prepare foreach / for iterator.
       // Elfscript 0.6f
       OP_ITER_STRING,
       OP_ITER_SIMOBJECT,
       OP_ITER_ARRAY, // ElfScript 0.7
       OP_ITER_FOR_INT,
+      OP_ITER_FOR_INT_NEG,
       OP_ITER_FOR_INT_RANGE,
       OP_ITER_FOR_INT_RANGE_NEG,
 

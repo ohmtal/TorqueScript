@@ -1,5 +1,7 @@
 # ElfScript Syntax Handbook - Variables and Fields
 
+@ElfScript 0.7
+
 [Back to Main](./Main.md)
 
 ## 1.) Common Notes
@@ -24,6 +26,22 @@ A local variable is only vaild in a local scope. It start with a **%**.
 A global Variable can be accessed everywhere in your scripts and start with a "$";
 The definition is the same as a local variable. 
 
+## Local / Global scope showcase:
+
+```
+print("----------------- Local / Global var scope showcase ----------------- ");
+%localVar = "LocalVar";
+$GlobalVar = "GlobalVar";
+
+function showLocal() {
+    print("inside func %localvar==",%localvar, ", $GlobalVar==",$GlobalVar); //local should be empty
+}
+
+print("outside func %localvar==",%localvar, ", $GlobalVar==",$GlobalVar); //local should be filled
+
+showLocal();
+```
+
 ## 4.) Fields
 
 A Field is a property of a Object. We have two types of fields:
@@ -36,7 +54,8 @@ I will talk about Objects later but for fields i add an example:
 
 ```
 $MyObject = new ScriptObject();
-$MyObject.customValue = 5;
+$MyObject.customValue = 5; //bad is casted as string
+$MyObject.addField("CustomFloatValue", "TypeF64", 5.0); // good casted as float, Note: Typename as String
 ```
 We created an basic ScriptObject. Because it's basic we have no useful static fields
 here so i add a dynamic field called "customValue". Fields are separated from the 
@@ -54,7 +73,7 @@ This can be a bit dangerous if you misstype a variable name.
 
 ## 6.) Types
 
-Numbers:
+Numbers [TypeS64] or [TypeF64]:
 ```
 123     (Integer)
 1.234   (floating point)
@@ -62,11 +81,21 @@ Numbers:
 0xc001  (hexadecimal)
 ```
 
-String:
+String [TypeString]:
 ```
 "Hello World" (normal string)
-{ 10,10 }     (result in string "10 10")
 ```
+
+ConsoleVector [TypeVector] (4 Float's )
+```
+%myVec = { 10.0, 20.09 }; // (Vector first 2 values filled => 10.0, 20.09, 0.0, 0.0)
+```
+
+Array Construtor:
+```
+%myArray = [10.0, "Hello", 50]; // Array Object with 3 Values 
+```
+
 
 Boolean: 
 ```

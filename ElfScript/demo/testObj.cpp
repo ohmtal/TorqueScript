@@ -434,3 +434,13 @@ DefineEngineMethod(TestObj, fromArray, void, (Array* array),,"") {
 }
 
 
+DefineEngineFunction(isTypeTest, void, (),,"") {
+    const char *a[4];
+    a[0] = "5";
+    a[1] = "5.0";
+    a[2] = "5.1";
+    a[3] = "foo0";
+
+    for (S32 i = 0; i < 4; i++) Con::printf("%s => int:%d float:%d", a[i],  isInt(a[i]), isFloat(a[i]) );
+}
+

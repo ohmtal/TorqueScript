@@ -63,9 +63,10 @@ sto.dumpFields();
 
 echo("------------ FOREACH -------------");
 echo ("ABC....");
-foreach$( %str in "A B C") { echo (%str); }
+foreach( %str in "A B C") { echo (%str); }
 
 echo("simset .....");
+if (isObject(mySet)) mySet.delete();
 new SimSet(mySet);
 mySet.add( new SimObject());
 mySet.add( new SimObject());
@@ -682,7 +683,30 @@ print("Size:",%arr.size(), "rand 10 values:", trim(%str) );
 print ("array inside a array: id:%d", %arr.at(0));
 %arr.at(0).list();
 
+printSeparator();
 
+print("new functions: ");
+%arr.fromString("1 2 3 4 5 6 7 1.1 1.2 1.3 HelloWorld");
+%arr.list();
+
+%arr.concat(%arr.at(0));
+%arr.concat(%arr.at(0), true);
+%arr.at(0).list();
+%arr.pop_front();// object is deleted and ID needs to be removed
+%arr.list();
+
+%arr.toFields();
+%arr.dumpFields();
+%arr.save("test_array.elfdata");
+%arr.delete();
+
+exec("test_array.elfdata");
+// should be validated when exec fails
+$arr = RootGroup.last();
+$arr.list();
+
+$arr.clear();
+$arr.push_back({1,47.22, 2, 3});
 
 
 printSeparator();

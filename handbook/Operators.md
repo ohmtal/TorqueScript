@@ -98,7 +98,13 @@ for (%i = 0; %i < 10; %i ++) {
 Example *for with range(fast)*:
 ```
 for (%i in range 10) {
-    echo("%i is:" SPC %i);
+    echo("%i is:" SPC %i); //print 0 .. 9 
+}
+```
+
+```
+for (%i in 0..10) {
+    echo("%i is:" SPC %i); //print 0..10
 }
 ```
 
@@ -117,14 +123,14 @@ while ( %i < 20 ) {
 }
 ```
 
-*foreach* (fastest): 
+*foreach*: 
 
 1. It's designed for SimSet's and SimGroup's to loop it's members
-2. foreach$ can be used for words like "A B C".
-3. ElfScript 0.5: it now can be used also for integers: `foreach(%i in 1..3) {}`. 
+2. ~~~foreach$~~~  foreach can also be used for words like "A B C".
+3. It can be used also for integers: `foreach(%i in 1..3) {}`. 
 **Importent** it gives you all numbers: 1,2,3 like pascal: `For i:=1 to 3 do ...`
 4. If you want to interate from 1 to 3 and set the maxium you an use `foreach(%i in range 1..3) {}`
-
+5. Like the Set loop it also works for the Array Object
 
 SimSet Example with named Object  and cleanup:
 ``` 
@@ -145,7 +151,7 @@ String Example:
 
 ```
 %MyString = "Die Kuh lief um den Teich.";
-foreach$(%word in %MyString) {
+foreach (%word in %MyString) {
     echo("..", %word, "..");
 }
 echo("Drei mal ganz schnell hintereinander...");

@@ -414,48 +414,49 @@ DefineEngineFunction(explodeGlobal,S32, (const char* varName, bool debugOut),(fa
 }
 // ElfScript 0.7f - see also
 // FIXME can be removed and Array need a from string ?
-DefineEngineFunction(explodeToObject,S32, (const char* text),
-                     ,"Convert an string to Object with v[] fields\n"
-                     "tab separated (default) or space separated\n"
-                     "WARNING you need to delete the object after it's not longer needed."
-) {
-    if (!text || text[0] == '\0') {
-        Con::errorf("Empty text cant be converted to object");
-        return 0;
-    }
-
-    const char* set = "\t\n";
-    // we try to separate by tabs to keep stuff like "Hello World" TAB "tom"
-    U32 count =  StringUnit::getUnitCount( text, "\t\n" );
-    // we only got no or one token - switch to space / tab separated
-    if (count < 2) {
-        count =  StringUnit::getUnitCount( text, " \t\n" );
-        set = " \t\n";
-    }
-
-    // nothing - is empty ?
-    if (count < 1) {
-        Con::errorf("Empty text cant be converted to object");
-        return 0;
-    }
-
-    SimObject* obj = new SimObject();
-    char buff[32];
-    StringTableEntry fieldNameEntry = nullptr;
-    for (U32 i = 0; i < count; i++) {
-        const char * token = StringUnit::getUnit( text, i, set );
-
-        dSprintf(buff,32,"v%d", i); //mhh or as array ?
-        fieldNameEntry = StringTable->insert( buff );
-
-        obj->setDataField(fieldNameEntry, nullptr, token);
-        // try to typeCast:
-        if (isInt(token)) obj->setDataFieldType(TypeS64, fieldNameEntry, nullptr );
-        else if (isFloat(token)) obj->setDataFieldType(TypeF64, fieldNameEntry, nullptr );
-    }
-    obj->registerObject();
-    return obj->getId();
-}
+// Added to Array fromString
+// DefineEngineFunction(explodeToObject,S32, (const char* text),
+//                      ,"Convert an string to Object with v[] fields\n"
+//                      "tab separated (default) or space separated\n"
+//                      "WARNING you need to delete the object after it's not longer needed."
+// ) {
+//     if (!text || text[0] == '\0') {
+//         Con::errorf("Empty text cant be converted to object");
+//         return 0;
+//     }
+//
+//     const char* set = "\t\n";
+//     // we try to separate by tabs to keep stuff like "Hello World" TAB "tom"
+//     U32 count =  StringUnit::getUnitCount( text, "\t\n" );
+//     // we only got no or one token - switch to space / tab separated
+//     if (count < 2) {
+//         count =  StringUnit::getUnitCount( text, " \t\n" );
+//         set = " \t\n";
+//     }
+//
+//     // nothing - is empty ?
+//     if (count < 1) {
+//         Con::errorf("Empty text cant be converted to object");
+//         return 0;
+//     }
+//
+//     SimObject* obj = new SimObject();
+//     char buff[32];
+//     StringTableEntry fieldNameEntry = nullptr;
+//     for (U32 i = 0; i < count; i++) {
+//         const char * token = StringUnit::getUnit( text, i, set );
+//
+//         dSprintf(buff,32,"v%d", i); //mhh or as array ?
+//         fieldNameEntry = StringTable->insert( buff );
+//
+//         obj->setDataField(fieldNameEntry, nullptr, token);
+//         // try to typeCast:
+//         if (isInt(token)) obj->setDataFieldType(TypeS64, fieldNameEntry, nullptr );
+//         else if (isFloat(token)) obj->setDataFieldType(TypeF64, fieldNameEntry, nullptr );
+//     }
+//     obj->registerObject();
+//     return obj->getId();
+// }
 // =============================================================================
 #ifdef TORQUE_DEBUG
 DefineEngineFunction(TEST_VAR_CREATE,void,(),,"must be test inside and outside a function!") {

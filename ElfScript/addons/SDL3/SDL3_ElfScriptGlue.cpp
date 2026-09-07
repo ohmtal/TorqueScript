@@ -130,25 +130,30 @@ namespace ElfSDL3 {
             switch (event.type) {
                 case SDL_EVENT_QUIT:
                     Con::debugf("******* Quit Event ********");
-                    Con::executef("onSDL_EVENT_QUIT");
+                    if (Con::isFunction("onSDL_EVENT_QUIT"))
+                        Con::executef("onSDL_EVENT_QUIT");
                     return false;
                     break;
                 case SDL_EVENT_WINDOW_CLOSE_REQUESTED: {
                     SDL_Window* window =  SDL_GetWindowFromID(event.window.windowID);
                     U32 id = WindowMap.getId(window);
                     Con::debugf("******* Window Close Event (ID:%d)********", id);
-                    Con::executef("onSDL_EVENT_WINDOW_CLOSE_REQUESTED", id);
+                     if (Con::isFunction("onSDL_EVENT_WINDOW_CLOSE_REQUESTED"))
+                         Con::executef("onSDL_EVENT_WINDOW_CLOSE_REQUESTED", id);
                     break;
                 }
 
 
                 case SDL_EVENT_WILL_ENTER_BACKGROUND:
                     Con::debugf("******* SDL_EVENT_WILL_ENTER_BACKGROUND ********");
-                    Con::executef("onSDL_ENTER_BACKGROUND");
+                    if (Con::isFunction("onSDL_ENTER_BACKGROUND"))
+                        Con::executef("onSDL_ENTER_BACKGROUND");
                     break;
 
                 case SDL_EVENT_TERMINATING:
                     Con::debugf("******* SDL_EVENT_TERMINATING ********");
+                    if (Con::isFunction("onSDL_EVENT_TERMINATING"))
+                        Con::executef("onSDL_EVENT_TERMINATING");
                     return false;
                     break;
             };

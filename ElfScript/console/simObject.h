@@ -625,33 +625,26 @@ class SimObject: public ConsoleObject
 
             if (entry)
             {
-                  // switch (stackP->getType()) {
-                  switch(entry->mValue.getType()) //TEST
+                  switch(entry->mValue.getType())
                   {
                         case ConsoleValueType::cvInteger:
-                              // switch(entry->mValue.getType()) {
-                              switch(stackP->getType()) { //TEST
-                                    case ConsoleValueType::cvInteger: stackP->setFastInt(entry->mValue.getFastInt()); break;
-                                    case ConsoleValueType::cvFloat: stackP->setInt(entry->mValue.getInt()); break;
-                                    default: stackP->setInt(entry->mValue.getInt()); break;
-                              }
+                              stackP->setInt(entry->mValue.getInt());
+                        break;
+                        case ConsoleValueType::cvFloat:
+                              stackP->setFloat(entry->mValue.getFloat());
                               break;
-                              case ConsoleValueType::cvFloat:
-                                    stackP->setFloat(entry->mValue.getFloat());
-                                    // stackP->setFastFloat(entry->mValue.getFloat());
-                                    break;
-                              #ifdef ENABLE_CONSOLE_VECTOR
-                              case ConsoleValueType::cvVector:
-                                    stackP->setVector(entry->mValue.getVector());
-                                    break;
-                              #endif
-                              default: {
-                                    const char* str = entry->mValue.getString();
-                                    if (str) stackP->setString(str);
-                                    else stackP->setString("");
-                                    break;
-                              }
+                        #ifdef ENABLE_CONSOLE_VECTOR
+                        case ConsoleValueType::cvVector:
+                              stackP->setVector(entry->mValue.getVector());
                               break;
+                        #endif
+                        default: {
+                              const char* str = entry->mValue.getString();
+                              if (str) stackP->setString(str);
+                              else stackP->setString("");
+                              break;
+                        }
+                        break;
                   }
                   return true;
             }
